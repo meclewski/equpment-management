@@ -1,0 +1,160 @@
+﻿@model Device
+@{
+    ViewData["Title"] = ViewBag.CreateMode ? "Dodawanie nowego przyrządu" : "Karta Ewidencyjna przyrządu pomiarowego";
+    //ViewBag.Title = "Karta Ewidencyjna przyrządu pomiarowego";
+    Layout = "_AdminLayout";
+}
+<div asp-validation-summary="All" class="text-danger"></div>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="DeviceId" />
+
+    <div class=" row">
+        <div class="border col-md-12">
+            <div class="form-group ">
+                <label asp-for="RegistrationNo">Numer kalibracji</label>
+                <div><span asp-validation-for="RegistrationNo" class="text-danger"></span></div>
+                <input asp-for="RegistrationNo" value="@String.Format("{0:D5}",ViewBag.Next)" class="form-control" readonly />
+            </div>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-md-6 border">
+            <div class="row">
+                <div class="form-group col-md-12">
+                    <label for="DeviceName">Nazwa przyrządu</label>
+                    <input id="DeviceName" class="form-control" value="@ViewBag.DeviceName" readonly />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="ProducerName">Producent</label>
+                    <input id="ProducerName" class="form-control" value="@ViewBag.Producer" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="TypeId">Typ urządzenia</label>
+                    <div><span asp-validation-for="TypeId" class="text-danger"></span></div>
+                    <select class="form-control" asp-for="TypeId" asp-items="ViewBag.Types">
+                        <option disabled selected value="">Wybierz typ</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label ></label>
+                    <a asp-controller="Type" asp-action="Create" class="btn btn-secondary" >Dodaj</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label asp-for="SerialNo">Numer seryjny</label>
+                        <div><span asp-validation-for="SerialNo" class="text-danger"></span></div>
+                        <input asp-for="SerialNo" class="form-control" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label asp-for="InventoryNo">Numer inwentarzowy</label>
+                        <div><span asp-validation-for="InventoryNo" class="text-danger"></span></div>
+                        <input asp-for="InventoryNo" class="form-control" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label asp-for="ProductionDate">Data produkcji</label>
+                        <div><span asp-validation-for="ProductionDate" class="text-danger"></span></div>
+                        <div class="input-group date dtp" id="dtp1" data-target-input="nearest">
+                            <input asp-for="ProductionDate" type="text" class="form-control datetimepicker-input" data-target="#dtp1" />
+                            <div class="input-group-append" data-target="#dtp1" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label asp-for="CurrentlyInUse">W użytkowaniu</label>
+                        <div><span asp-validation-for="CurrentlyInUse" class="text-danger"></span></div>
+                        <input asp-for="CurrentlyInUse" class="form-control" />
+                    </div>
+                </div>
+            </div>
+        <div class="col-md-6 border">
+            <div class="justify-content-center align-self-center">
+                <img class="img-fluid mx-auto d-block" src="@ViewBag.Image" alt="">
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 border">
+            <div class="row">
+                <div class="form-group col-md-12">
+                    <label for="KindOfVeryfication">KindOfVeryfication</label>
+                    <input id="KindOfVeryfication" class="form-control" value="@ViewBag.VerificationName" readonly />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label asp-for="VerificationDate">Data weryfikacji</label>
+                    <div><span asp-validation-for="VerificationDate" class="text-danger"></span></div>
+                    <div class="input-group date dtp ver" id="dtp3" data-target-input="nearest">
+                        <input asp-for="VerificationDate" type="text" class="form-control datetimepicker-input" data-target="#dtp3" />
+                        <div id="dupa" class="input-group-append" data-target="#dtp3" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="TimeToVerification">Czas kolejnej weryfikacji</label>
+                    <div><span asp-validation-for="TimeToVerification" class="text-danger"></span></div>
+                    <div class="input-group date dtp" id="dtp2" data-target-input="nearest">
+                        <input asp-for="TimeToVerification" type="text" class="form-control datetimepicker-input" data-target="#dtp2" />
+                        <div class="input-group-append" data-target="#dtp2" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="Costam">Future field</label>
+                    <input id="Costam" class="form-control" />
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="EngName">Osoba wprowadzająca</label>
+                    <input id="EngName" class="form-control" value="@ViewBag.userName" readonly />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-12">
+                    <label asp-for="VerificationResult">Wynik weryfikacji</label>
+                    <div><span asp-validation-for="VerificationResult" class="text-danger"></span></div>
+                    <input asp-for="VerificationResult" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+        </div>
+    </div>
+    <div class="row">
+        <div class="border col-md-12">
+            <div class="form-group">
+                <label asp-for="DeviceDesc">Opis</label>
+                <div><span asp-validation-for="DeviceDesc" class="text-danger"></span></div>
+                <input asp-for="DeviceDesc" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <br />
+        <span style="float:left;">
+            <button class="btn btn-primary" type="submit">Zapisz</button>
+            <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary">Anuluj</a>
+        </span>
+</form>
+
+<form asp-action="Delete" method="post">
+    <span style="float:left; margin-left:4px">
+        <input type="hidden" asp-for="DeviceId" />
+        <button type="submit" class="btn btn-danger">Usuń</button>
+    </span>
+</form>
+
+
+
+
+

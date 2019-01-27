@@ -1,0 +1,29 @@
+﻿@using Type = Measuring_equipment.Models.Type;
+@model IEnumerable<Type>
+@{
+    ViewBag.Title = "Lista typów sprzętu";
+    Layout = "_AdminLayout";
+
+}
+<table id="dt_type" class="table table-bordered table-hover" width="100%" >
+    <thead>
+        <tr>
+            <th>Id typu</th>
+            <th>Nazwa typu</th>
+            <th>Nazwa urządzenia</th>
+            <th>Czasokres weryfikacji</th>
+            <th>Cena</th>
+            <th>Zdjęcie</th>
+            <th>Opis</th>
+            <th>Id weryfikacji</th>
+            <th>Id producenta</th>
+            <th>Id laboratorium</th>
+            <th>Edycja</th>
+        </tr>
+    </thead> 
+</table>
+<br />
+
+<div class="text-right">
+    <a asp-action="Create" class="btn btn-primary">Dodaj typ</a>
+</div>

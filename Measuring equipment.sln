@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2046
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Measuring_equipment", "Measuring equipment\Measuring_equipment.csproj", "{9BF7D4D6-474C-46AE-8274-3A96D915EF19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Measuring_equipment.Tests", "Measuring_equipment.Tests\Measuring_equipment.Tests.csproj", "{C4159C0F-A6B8-40A1-A9E1-F9BE28E0A189}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9BF7D4D6-474C-46AE-8274-3A96D915EF19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BF7D4D6-474C-46AE-8274-3A96D915EF19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BF7D4D6-474C-46AE-8274-3A96D915EF19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BF7D4D6-474C-46AE-8274-3A96D915EF19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4159C0F-A6B8-40A1-A9E1-F9BE28E0A189}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4159C0F-A6B8-40A1-A9E1-F9BE28E0A189}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4159C0F-A6B8-40A1-A9E1-F9BE28E0A189}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4159C0F-A6B8-40A1-A9E1-F9BE28E0A189}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1DCE0108-0F61-48CF-9510-1C6DD2DD0252}
+	EndGlobalSection
+EndGlobal

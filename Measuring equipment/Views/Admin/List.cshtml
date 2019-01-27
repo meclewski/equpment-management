@@ -1,0 +1,49 @@
+﻿@model IEnumerable<Device>
+@{
+    ViewBag.Title = "Lista sprzętu do kalibracji";
+    Layout = "_AdminLayout";
+
+}
+
+<table id="dt" class="table table-bordered table-hover" width="100%">
+    <thead>
+        <tr>
+            <th>Numer Kalibracji</th>
+            <th>Numer Inwentarzowy</th>
+            <th>Numer Seryjny</th>
+            <th>Opis</th>
+            <th>Typ urządzenia</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var d in Model)
+        {
+            <tr>
+                <td>@String.Format("{0:D5}", d.RegistrationNo) </td>
+                <td>@d.InventoryNo</td>
+                <td>@d.SerialNo</td>
+                <td>@d.DeviceDesc</td>
+
+                <td>@d.Type.TypeName</td>
+                <td>
+                    <form asp-action="Delete" method="post">
+                        <div class="btn-group">
+
+                            <a asp-action="Edit" class="btn btn-sm btn-warning" asp-route-deviceId="@d.DeviceId">Edytuj</a>
+                            <input type="hidden" name="DeviceId" value="@d.DeviceId" />
+                            <button type="submit" class="btn btn-sm btn-danger">Usuń</button>
+
+                        </div>
+                    </form>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+<div class="text-right">
+    <a asp-action="Create" class="btn btn-primary">Dodaj urządzenie</a>
+</div>
+

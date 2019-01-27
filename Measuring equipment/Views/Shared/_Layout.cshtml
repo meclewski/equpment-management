@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" asp-href-include="lib/bootstrap/dist/css/*.min.css" />
+    
+    <title>Measuring Equipment</title>
+</head>
+<body>
+    @if (TempData["message"] != null)
+    {
+        <div class="alert alert-success mt-1">@TempData["message"]</div>
+    }
+    <div class="row m-1 p-1">
+
+        
+        <div>
+
+            @RenderBody()
+        </div>
+    </div>
+
+</body>
+</html>
