@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Measuring_equipment.Models;
+using Measuring_equipment.Models.ViewModels;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -24,11 +25,23 @@ namespace Measuring_equipment.Controllers
     {
         
         private IDeviceRepository repository;
-        private readonly UserManager<IdentityUser> userManager;
-        public AdminController(IDeviceRepository repo, UserManager<IdentityUser> userMgr)
+        private readonly UserManager<AppUser> userManager;
+        private IUserValidator<AppUser> userValidator;
+        private IPasswordValidator<AppUser> passwordValidator;
+        private IPasswordHasher<AppUser> passwordHasher;
+
+
+        public AdminController(IDeviceRepository repo,
+            UserManager<AppUser> userMgr,
+            IUserValidator<AppUser> userValid,
+            IPasswordValidator<AppUser> passValid,
+            IPasswordHasher<AppUser> passwordHash)
         {
             repository = repo;
             userManager = userMgr;
+            userValidator = userValid;
+            passwordValidator = passValid;
+            passwordHasher = passwordHash;
         }
 
         public ViewResult Index()
@@ -176,9 +189,9 @@ namespace Measuring_equipment.Controllers
             ViewBag.Breadcrumb = "Edycja";
             ViewBag.CreateMode = false;
             // Types value for select option 
-            ViewBag.Types = (repository.Devices.Select(t => new SelectListItem() {
-                Value = t.Type.TypeId.ToString(),
-                Text = t.Type.TypeName
+            ViewBag.Types = (repository.Types.Select(t => new SelectListItem() {
+                Value = t.TypeId.ToString(),
+                Text = t.TypeName
             }).Distinct().ToList());
 
             //Current RegistrationNo for disabled input
@@ -309,26 +322,21 @@ namespace Measuring_equipment.Controllers
 
         public IActionResult GetData(int typeId)
         {
-            
-            Device device = repository.Devices.FirstOrDefault(d => d.TypeId == typeId);
 
-            string producerSelected = repository.Producers
-                .FirstOrDefault(p => p.ProducerId == device.Type.ProducerId).ProducerName.ToString();
+            //Device device = repository.Devices.FirstOrDefault(d => d.TypeId == typeId);
+                Type type = repository.Types.First(t => t.TypeId == typeId);
 
-            Type type = repository.Types.First(t => t.TypeId == typeId);
-            
-            Type typeresult = new Type()
-            {
-                TypeId = type.TypeId,
-                TypeName = type.TypeName,
-                DeviceName = type.DeviceName,
-                TypeDesc = type.TypeDesc,
-                ValidityPierod = type.ValidityPierod,
-                Price = type.Price,
-                ProducerId = type.ProducerId
-            };
-            
-            return new JsonResult(typeresult);
+                Type typeresult = new Type()
+                {
+                    TypeId = type.TypeId,
+                    TypeName = type.TypeName,
+                    DeviceName = type.DeviceName,
+                    TypeDesc = type.TypeDesc,
+                    ValidityPierod = type.ValidityPierod,
+                    Price = type.Price,
+                    ProducerId = type.ProducerId
+                };
+                return new JsonResult(typeresult);
         }
 
         public IActionResult GetDataProd(int typeId)
@@ -359,6 +367,145 @@ namespace Measuring_equipment.Controllers
             };
             
             return new JsonResult(verificationresult);
+        }
+
+        //-----------------------IDENTITY-----------------------------
+
+        public ViewResult UsersIndex()
+        {
+            ViewBag.Breadcrumb = "Użytkownicy";
+            return View(userManager.Users);
+        }
+
+        public ViewResult UsersCreate()
+        {
+            ViewBag.Breadcrumb = "Dodawanie użytkowników";
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UsersCreate(UserViewModel.CreateModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                AppUser user = new AppUser
+                {
+                    UserName = model.Name,
+                    Email = model.Email
+                };
+                IdentityResult result = await userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    TempData["message"] = $"Dodano {user.NormalizedUserName}.";
+                    return RedirectToAction("UsersIndex");
+                }
+                else
+                {
+                    
+                    foreach (IdentityError error in result.Errors)
+                    {
+                        TempData["error"] = error.Description.ToString();
+                        //ModelState.AddModelError("", error.Description);
+                    }
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UsersDelete(string id)
+        {
+            AppUser user = await userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                IdentityResult result = await userManager.DeleteAsync(user);
+                if (result.Succeeded)
+                {
+                    TempData["message"] = $"Usunięto poprawnie {user.NormalizedUserName}.";
+                    return RedirectToAction("UsersIndex"); 
+                }
+                else
+                {
+                    AddErrorsFromResult(result);
+                }
+            }
+            else
+            {
+                //ModelState.AddModelError("", "Nie znaleziono użytkownika");
+                TempData["error"] = "Nie znaleziono użytkownika";
+            }
+            return View("UsersIndex", userManager.Users);
+        }
+        private void AddErrorsFromResult(IdentityResult result)
+        {
+            foreach (IdentityError error in result.Errors)
+            {
+                TempData["error"] = error.Description.ToString();
+                //ModelState.AddModelError("", error.Description);
+            }
+        }
+
+        public async Task<IActionResult> UsersEdit(string id)
+        {
+            AppUser user = await userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                ViewBag.Breadcrumb = "Edycja użytkownika";
+                return View(user);
+            }
+            else
+            {
+                return RedirectToAction("UsersIndex");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UsersEdit(string id,  string email, string password)
+        {
+            AppUser user = await userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                user.Email = email;
+                IdentityResult validEmail = await userValidator.ValidateAsync(userManager, user);
+                if (!validEmail.Succeeded)
+                {
+                    AddErrorsFromResult(validEmail);
+                }
+                IdentityResult validPass = null;
+                if (!string.IsNullOrEmpty(password))
+                {
+                    validPass = await passwordValidator.ValidateAsync(userManager, user, password);
+                    if (validPass.Succeeded)
+                    {
+                        user.PasswordHash = passwordHasher.HashPassword(user, password);
+                    }
+                    else
+                    {
+                        AddErrorsFromResult(validPass);
+                    }
+                }
+               if ((validEmail.Succeeded && validPass == null) 
+                    || (validEmail.Succeeded && password != string.Empty && validPass.Succeeded))
+                {
+                    IdentityResult result = await userManager.UpdateAsync(user);
+                    if (result.Succeeded)
+                    {
+                        TempData["message"] = $"Wyedytowano poprawnie {user.NormalizedUserName}.";
+                        return RedirectToAction("UsersIndex");
+                    }
+                    else
+                    {
+                        AddErrorsFromResult(result);
+                    }
+                }     
+            }
+            else
+            {
+                //ModelState.AddModelError("", "Nie znaleziono użytkownika");
+                TempData["error"] = "Nie znaleziono użytkownika";
+            }
+            return View(user);
         }
     }
 }

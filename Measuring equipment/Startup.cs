@@ -30,7 +30,7 @@ namespace Measuring_equipment
                 options.UseSqlServer(Configuration["Data:MeasuringDevices:ConnectionString"]));
             services.AddDbContext<AppIdentityDbContext>(options =>
                 options.UseSqlServer(Configuration["Data:MeasuringIdentity:ConnectionString"]));
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppIdentityDbContext>()
                 .AddDefaultTokenProviders();
             services.AddTransient<IDeviceRepository, EFDeviceRepository>();

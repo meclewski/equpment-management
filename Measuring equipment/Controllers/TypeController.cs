@@ -20,9 +20,9 @@ namespace Measuring_equipment.Controllers
     public class TypeController : Controller
     {
         private ITypeRepository repository;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<AppUser> userManager;
         //private IHostingEnvironment he; 
-        public TypeController(ITypeRepository repo, UserManager<IdentityUser> userMgr, IHostingEnvironment e)
+        public TypeController(ITypeRepository repo, UserManager<AppUser> userMgr, IHostingEnvironment e)
         {
             repository = repo;
             userManager = userMgr;
@@ -75,14 +75,12 @@ namespace Measuring_equipment.Controllers
 
         [HttpPost]
         
-        public IActionResult Edit(int typeId, Type tmp)
+        public IActionResult Edit(int typeId, Type type)
         {
-            Type type = repository.Types.First(t => t.TypeId == typeId);
-           
-            if (ModelState.IsValid)
+           if (ModelState.IsValid)
             {
                 
-            
+
                 if (HttpContext.Request.Form.Files.Count != 0)
                 {
                     var file = HttpContext.Request.Form.Files[0];
@@ -94,7 +92,11 @@ namespace Measuring_equipment.Controllers
                 }
                 else
                 {
-                    tmp.Image = type.Image;
+                    if (type.TypeId != 0)
+                    {
+                        Type tmp = repository.Types.First(t => t.TypeId == typeId);
+                        type.Image = tmp.Image;
+                    }
                 }
                 
                 
