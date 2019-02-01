@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Measuring_equipment.Models.ViewModels;
 using Measuring_equipment.Models;
+using static Measuring_equipment.Models.ViewModels.UserViewModel;
 
 namespace Measuring_equipment.Controllers
 {
@@ -55,5 +56,10 @@ namespace Measuring_equipment.Controllers
             return Redirect(returnUrl);
         }
         
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }

@@ -16,7 +16,10 @@ namespace Measuring_equipment.Models
         }
 
         public IQueryable<Device> Devices => context.Devices
-            .Include(x => x.Type);
+            .Include(x => x.Type).ThenInclude(v => v.Verification)
+            .Include(x => x.Type).ThenInclude(x=>x.Producer)
+            .Include(x=>x.Type).ThenInclude(x=>x.Laboratory);
+
         public IQueryable<Device> DevicesDT => context.Devices;
         public IQueryable<Producer> Producers => context.Producers;
         public IQueryable<Type> Types => context.Types;
@@ -65,7 +68,7 @@ namespace Measuring_equipment.Models
             if (dbEntry != null)
             {
                 context.Devices.Remove(dbEntry);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
             return dbEntry;
         }

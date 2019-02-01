@@ -21,6 +21,8 @@ namespace Measuring_equipment.Models
 
         public IQueryable<Type> TypesDT => context.Types;
 
+        
+
         public void SaveType(Type type)
         {
             
@@ -47,13 +49,13 @@ namespace Measuring_equipment.Models
             context.SaveChanges();
         }
 
-        public Type DeleteType(int typeId)
+        public async Task<Type> DeleteTypeAsync(int typeId)
         {
-            Type dbEntry = context.Types.FirstOrDefault(d => d.TypeId == typeId);
+            Type dbEntry = await context.Types.FirstOrDefaultAsync(d => d.TypeId == typeId);
             if (dbEntry != null)
             {
                 context.Types.Remove(dbEntry);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
             return dbEntry;
         }

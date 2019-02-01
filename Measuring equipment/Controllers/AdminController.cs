@@ -12,7 +12,6 @@ using LinqKit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Measuring_equipment.Controllers
@@ -20,7 +19,7 @@ namespace Measuring_equipment.Controllers
     
 
 
-    [Authorize]
+    [Authorize (Roles ="Administratorzy")]
     public class AdminController : Controller
     {
         
@@ -29,7 +28,7 @@ namespace Measuring_equipment.Controllers
         private IUserValidator<AppUser> userValidator;
         private IPasswordValidator<AppUser> passwordValidator;
         private IPasswordHasher<AppUser> passwordHasher;
-
+        
 
         public AdminController(IDeviceRepository repo,
             UserManager<AppUser> userMgr,
@@ -50,7 +49,7 @@ namespace Measuring_equipment.Controllers
             return View();
         }
 
-        
+        // Load data for DataTable (server side proccessing)
         [HttpPost]
         public async Task<IActionResult> LoadData()
         {
@@ -73,7 +72,7 @@ namespace Measuring_equipment.Controllers
             // Search Value from (Search box)  
             var searchValue = Request.Form["search[value]"].FirstOrDefault();
 
-            //Paging Size  
+            // Paging Size  
             int pageSize = length != null ? Convert.ToInt32(length) : 0;
 
             int skip = start != null ? Convert.ToInt32(start) : 0;
@@ -81,12 +80,9 @@ namespace Measuring_equipment.Controllers
             int recordsTotal = 0;
 
            
-            // getting all Device and Type data  
+            // Getting all Device and Type data  
             var deviceData = (from tempDevice in repository.DevicesDT
                                              select tempDevice);
-
-            //join tempType in repository.Types on tempDevice.TypeId equals tempType.TypeId
-            // select new { tempDevice.RegistrationNo, tempType.TypeName });
 
             IQueryable<Tuple<Device, Type>> GetDeviceWithType()
             {
@@ -115,8 +111,7 @@ namespace Measuring_equipment.Controllers
                          || item.Item2.DeviceName.Contains(keyword)
                       
                 );
-                
-               
+
                 return list.AsQueryable().Where(predicate);
             }
 
@@ -130,8 +125,8 @@ namespace Measuring_equipment.Controllers
 
             //Choose useful columns
             var deviceData2 = (from tempDevice in deviceType
-                               
-                               select new { tempDevice.Item1.DeviceId,
+                               select new {
+                                   tempDevice.Item1.DeviceId,
                                    tempDevice.Item1.RegistrationNo,
                                    tempDevice.Item1.InventoryNo,
                                    tempDevice.Item1.SerialNo,
@@ -156,7 +151,7 @@ namespace Measuring_equipment.Controllers
                     deviceData2 = deviceData2.OrderBy(sortColumn + " DESC");
                 }
             }
-            //total number of rows counts   
+            //Total number of rows counts   
             recordsTotal = deviceData2.Count();
             int recordsFiltered = recordsTotal;
 
@@ -164,81 +159,80 @@ namespace Measuring_equipment.Controllers
             var data = await deviceData2.Skip(skip).Take(pageSize).ToListAsync();
             
             //Returning Json Data 
-            
             return Json(new { draw, recordsFiltered, recordsTotal, data });
         }
 
-
-        [HttpGet]
-        public IActionResult GetAllData(int intiger)
+        public async Task<ViewResult> Edit(int deviceId)
         {
-            IQueryable<Device> All = repository.Devices.OrderBy(d => d.DeviceId);
-            return new JsonResult(All);
-        }
-        
-        
-        public ViewResult Edit(int deviceId)
-        {
-            Device device = repository.Devices
-                .FirstOrDefault(d => d.DeviceId == deviceId);
-
-            Type type = repository.Types.First(t => t.TypeId == device.TypeId);
-            device.Type = type;
-
-
             ViewBag.Breadcrumb = "Edycja";
             ViewBag.CreateMode = false;
-            // Types value for select option 
-            ViewBag.Types = (repository.Types.Select(t => new SelectListItem() {
-                Value = t.TypeId.ToString(),
-                Text = t.TypeName
-            }).Distinct().ToList());
 
-            //Current RegistrationNo for disabled input
-            ViewBag.Next = device.RegistrationNo;
+            Device device = await repository.Devices
+                .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+
             
-            //Count Next verification date
-            DateTime dt = device.VerificationDate ?? DateTime.Today;
-            int vp = device.Type.ValidityPierod;
-            ViewBag.DateNext = dt.AddMonths(vp).AddDays(-1);
-
-            //Get Producer name
-            ViewBag.Producer = repository.Producers
-                .FirstOrDefault(p => p.ProducerId == device.Type.ProducerId).ProducerName.ToString();
-
-            //Get Device name
-            ViewBag.DeviceName = device.Type.DeviceName;
-
-            //Get Kind of verification
-            int verificationId = device.Type.VerificationId;
-            Verification ver = repository.Verifications.FirstOrDefault(v => v.VerificationId == verificationId);
-            ViewBag.VerificationName = ver.VerificationName;
+            // Types value for select option 
+            List<SelectListItem> typeList = await TypeList();
 
             //User name
             ViewBag.userName = userManager.GetUserName(HttpContext.User);
 
+
             //Device picture
+            string imgSrc = Url.Content("~/images/no_pic.jpg");
             if (device.Type.Image != null)
             {
                 var base64 = Convert.ToBase64String(device.Type.Image);
-                var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
-                ViewBag.Image = imgSrc;
+                imgSrc = String.Format("data:image/gif;base64,{0}", base64);
             }
-            else
-                ViewBag.Image = "";
 
-            return View(device);
+            AdminEditViewModel model = new AdminEditViewModel
+            {
+                DeviceId = device.DeviceId,
+                RegistrationNo = device.RegistrationNo,
+                InventoryNo = device.InventoryNo,
+                SerialNo = device.SerialNo,
+                VerificationDate = device.VerificationDate,
+                TimeToVerification = device.TimeToVerification,
+                VerificationResult = device.VerificationResult,
+                ProductionDate = device.ProductionDate,
+                DeviceDesc = device.DeviceDesc,
+                CurrentlyInUse = device.CurrentlyInUse,
+                TypeId = device.TypeId,
+                DeviceName = device.Type.DeviceName,
+                ProducerName = device.Type.Producer.ProducerName,
+                VerificationName = device.Type.Verification.VerificationName,
+                ImageStr = imgSrc,
+                TypeListVm = typeList
+            };
+
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int deviceId, Device device)
+        public async Task<IActionResult> Edit(AdminEditViewModel model)
         {
             
             if (ModelState.IsValid)
             {
+                Device device = new Device
+                {
+                    DeviceId = model.DeviceId,
+                    RegistrationNo = model.RegistrationNo,
+                    InventoryNo = model.InventoryNo,
+                    SerialNo = model.SerialNo,
+                    VerificationDate = model.VerificationDate,
+                    TimeToVerification = model.TimeToVerification,
+                    VerificationResult = model.VerificationResult,
+                    ProductionDate = model.ProductionDate,
+                    DeviceDesc = model.DeviceDesc,
+                    CurrentlyInUse = model.CurrentlyInUse,
+                    TypeId = model.TypeId,
+                };
+
                 repository.SaveDevice(device);
-                TempData["message"] = $"Zapisano {String.Format("{0:D5}",device.RegistrationNo)}.";
+                TempData["message"] = $"Zapisano {String.Format("{0:D5}",model.RegistrationNo)}.";
                 return RedirectToAction("Index");
             }
             else
@@ -248,65 +242,68 @@ namespace Measuring_equipment.Controllers
 
                 ViewBag.CreateMode = false;
 
-                Type type = repository.Types.First(t => t.TypeId == device.TypeId);
-                device.Type = type;
-
-                // Types value for select option 
-                ViewBag.Types = (repository.Devices.Select(t => new SelectListItem()
-                {
-                    Value = t.Type.TypeId.ToString(),
-                    Text = t.Type.TypeName
-                }).Distinct().ToList());
-
-                //Current RegistrationNo for disabled input
-                ViewBag.Next = device.RegistrationNo;
-
-                //Count Next verification date
-                DateTime dt = device.VerificationDate ?? DateTime.Today;
-                int vp = device.Type.ValidityPierod;
-                ViewBag.DateNext = dt.AddMonths(vp).AddDays(-1);
-
-                //Get Producer name
-                ViewBag.Producer = repository.Producers
-                    .FirstOrDefault(p => p.ProducerId == device.Type.ProducerId).ProducerName.ToString();
-
-                //Get Device name
-                ViewBag.DeviceName = device.Type.DeviceName;
-
-                //Get Kind of verification
-                int verificationId = device.Type.VerificationId;
-                Verification ver = repository.Verifications.FirstOrDefault(v => v.VerificationId == verificationId);
-                ViewBag.VerificationName = ver.VerificationName;
-
                 //User name
                 ViewBag.userName = userManager.GetUserName(HttpContext.User);
 
-                //return RedirectToAction("Edit", new { deviceId = deviId });
-                return View(device);
+                return await Edit(model.DeviceId);
             }
         }
 
         
-
         public async Task<ViewResult> Create()
+
         {
             ViewBag.Breadcrumb = "Nowe urządzenie";
             ViewBag.CreateMode = true;
-            // Types value for select option
-            ViewBag.Types = (await repository.Devices.Select(t => new SelectListItem()
+            
+            //User name
+            ViewBag.userName = userManager.GetUserName(HttpContext.User);
+            List<SelectListItem> typeList = await TypeList();
+            //Get last Device for next RegistrationNo count
+            Device device = await repository.Devices.OrderBy(d => d.RegistrationNo).LastAsync();
+           
+            return View("Edit", new AdminEditViewModel {
+                RegistrationNo = device.RegistrationNo +1,
+                TypeListVm = typeList});
+        }   
+        [HttpPost]
+        public async Task<IActionResult> Create (AdminEditViewModel model)
+        {
+
+            if (ModelState.IsValid)
             {
-                Value = t.Type.TypeId.ToString(),
-                Text = t.Type.TypeName
-            }).Distinct().ToListAsync());
+                Device device = new Device
+                {
+                    DeviceId = model.DeviceId,
+                    RegistrationNo = model.RegistrationNo,
+                    InventoryNo = model.InventoryNo,
+                    SerialNo = model.SerialNo,
+                    VerificationDate = model.VerificationDate,
+                    TimeToVerification = model.TimeToVerification,
+                    VerificationResult = model.VerificationResult,
+                    ProductionDate = model.ProductionDate,
+                    DeviceDesc = model.DeviceDesc,
+                    CurrentlyInUse = model.CurrentlyInUse,
+                    TypeId = model.TypeId,
+                };
 
-            //Next RegistrationNo (last + 1)
-            Device device = repository.Devices.OrderBy(d => d.RegistrationNo).Last();
-            ViewBag.Next = device.RegistrationNo + 1;
+                repository.SaveDevice(device);
+                TempData["message"] = $"Zapisano {String.Format("{0:D5}", model.RegistrationNo)}.";
+                return RedirectToAction("Index");
+            }
+            else
+            {
 
-            return View("Edit", new Device());
+                TempData["error"] = $"Uzupełnij wszystkie wymagane dane";
+
+                ViewBag.CreateMode = false;
+
+                //User name
+                ViewBag.userName = userManager.GetUserName(HttpContext.User);
+
+                return await Edit(model.DeviceId);
+            }
         }
-
-        
 
         [HttpPost]
         public async Task<IActionResult> Delete(int deviceId)
@@ -319,31 +316,41 @@ namespace Measuring_equipment.Controllers
             return RedirectToAction("Index");
         }
 
-
-        public IActionResult GetData(int typeId)
+        private async Task<List<SelectListItem>> TypeList()
         {
-
-            //Device device = repository.Devices.FirstOrDefault(d => d.TypeId == typeId);
-                Type type = repository.Types.First(t => t.TypeId == typeId);
-
-                Type typeresult = new Type()
-                {
-                    TypeId = type.TypeId,
-                    TypeName = type.TypeName,
-                    DeviceName = type.DeviceName,
-                    TypeDesc = type.TypeDesc,
-                    ValidityPierod = type.ValidityPierod,
-                    Price = type.Price,
-                    ProducerId = type.ProducerId
-                };
-                return new JsonResult(typeresult);
+            return await repository.Types.Select(t => new SelectListItem()
+            {
+                Value = t.TypeId.ToString(),
+                Text = t.TypeName
+            }).Distinct().ToListAsync();
         }
 
-        public IActionResult GetDataProd(int typeId)
+        public async Task<IActionResult> GetData(int typeId)
         {
-            Type type = repository.Types.First(t => t.TypeId == typeId);
+            
+            Device device = await repository.Devices.FirstOrDefaultAsync(d => d.TypeId == typeId);
+
+            Type type = await repository.Types.FirstAsync(t => t.TypeId == typeId);
+            
+            Type typeresult = new Type()
+            {
+                TypeId = type.TypeId,
+                TypeName = type.TypeName,
+                DeviceName = type.DeviceName,
+                TypeDesc = type.TypeDesc,
+                ValidityPierod = type.ValidityPierod,
+                Price = type.Price,
+                ProducerId = type.ProducerId
+            };
+            
+            return new JsonResult(typeresult);
+        }
+
+        public async Task<IActionResult> GetDataProd(int typeId)
+        {
+            Type type = await repository.Types.FirstAsync(t => t.TypeId == typeId);
             int producerId = type.ProducerId;
-            Producer producerSelected = repository.Producers.First(p => p.ProducerId == producerId);
+            Producer producerSelected = await repository.Producers.FirstAsync(p => p.ProducerId == producerId);
 
             Producer producerresult = new Producer()
             {
@@ -354,11 +361,11 @@ namespace Measuring_equipment.Controllers
             return new JsonResult(producerresult);
         }
 
-        public IActionResult GetDataVer(int typeId)
+        public async Task<IActionResult> GetDataVer(int typeId)
         {
-            Type type = repository.Types.First(t => t.TypeId == typeId);
+            Type type = await repository.Types.FirstAsync(t => t.TypeId == typeId);
             int verificationId = type.VerificationId;
-            Verification verificationSelected = repository.Verifications.First(p => p.VerificationId == verificationId);
+            Verification verificationSelected = await repository.Verifications.FirstAsync(p => p.VerificationId == verificationId);
 
             Verification verificationresult = new Verification()
             {
@@ -369,7 +376,20 @@ namespace Measuring_equipment.Controllers
             return new JsonResult(verificationresult);
         }
 
-        //-----------------------IDENTITY-----------------------------
+        [HttpGet]
+        public IActionResult GetAllData(int intiger)
+        {
+            IQueryable<Device> All = repository.Devices.OrderBy(d => d.DeviceId);
+            return new JsonResult(All);
+        }
+
+
+        /*
+          -------------------------------------------------------------
+          ------------------------IDENTITY-----------------------------
+          -------------------------------------------------------------
+        */
+
 
         public ViewResult UsersIndex()
         {
@@ -451,7 +471,6 @@ namespace Measuring_equipment.Controllers
             AppUser user = await userManager.FindByIdAsync(id);
             if (user != null)
             {
-                ViewBag.Breadcrumb = "Edycja użytkownika";
                 return View(user);
             }
             else

@@ -16,6 +16,16 @@
         <label for="password">Hasło</label>
         <input name="password" class="form-control" />
     </div>
-    <button type="submit" class="btn btn-primary">Edytuj</button>
-    <a asp-action="UsersIndex" class="btn btn-secondary">Anuluj</a>
+    <br />
+    <span style="float:left;">
+        <button type="submit" class="btn btn-primary">Edytuj</button>
+        <a asp-action="UsersIndex" class="btn btn-secondary">Anuluj</a>
+    </span>
+</form>
+
+<form asp-action="UsersDelete" method="post">
+    <span style="float:left; margin-left:4px">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Usuń</button>
+    </span>
 </form>

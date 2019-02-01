@@ -9,8 +9,10 @@ namespace Measuring_equipment.Models
     {
         IQueryable<Type> Types { get; }
         IQueryable<Type> TypesDT { get; }
+      
 
         void SaveType(Type type);
-        Type DeleteType(int typeId);
+        
+        Task<Type> DeleteTypeAsync(int typeId);
     }
 }

@@ -12,7 +12,6 @@ namespace Measuring_equipment.Models
         public string DeviceName { get; set; }
         public int ValidityPierod { get; set; }
         public decimal Price { get; set; }
-        
         public byte[] Image { get; set; }
         public string TypeDesc { get; set; }
         public int ProducerId { get; set; }  

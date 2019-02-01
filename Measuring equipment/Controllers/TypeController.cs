@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Measuring_equipment.Models.ViewModels;
 
 namespace Measuring_equipment.Controllers
 {
@@ -20,13 +22,11 @@ namespace Measuring_equipment.Controllers
     public class TypeController : Controller
     {
         private ITypeRepository repository;
-        private readonly UserManager<AppUser> userManager;
-        //private IHostingEnvironment he; 
+        private readonly UserManager<AppUser> userManager;//private IHostingEnvironment he; 
         public TypeController(ITypeRepository repo, UserManager<AppUser> userMgr, IHostingEnvironment e)
         {
             repository = repo;
             userManager = userMgr;
-           // he = e;
         }
 
         public IActionResult Index()
@@ -34,59 +34,76 @@ namespace Measuring_equipment.Controllers
             ViewBag.Breadcrumb = "Index";
             return View();
         }
-        
-        public ViewResult Edit(int typeId)
+
+
+        public async Task<ViewResult> Edit(int typeId)
         {
             Type type = repository.Types.FirstOrDefault(t => t.TypeId == typeId);
 
             ViewBag.Breadcrumb = "Edycja";
             ViewBag.CreateMode = false;
 
-            ViewBag.Producers = (repository.Types.Select(t => new SelectListItem()
-            {
-                Value = t.Producer.ProducerId.ToString(),
-                Text = t.Producer.ProducerName
-            }).Distinct().ToList());
-
-            ViewBag.Labs = (repository.Types.Select(t => new SelectListItem()
-            {
-                Value = t.Laboratory.LaboratoryId.ToString(),
-                Text = t.Laboratory.LaboratoryName
-            }).Distinct().ToList());
-
-            ViewBag.Verifications = (repository.Types.Select(t => new SelectListItem()
-            {
-                Value = t.Verification.VerificationId.ToString(),
-                Text = t.Verification.VerificationName
-            }).Distinct().ToList());
+            List<SelectListItem> prodList = await ProducerList();
+            List<SelectListItem> labList = await LaboratoryList();
+            List<SelectListItem> verList = await VerificationList();
 
             //Type picture
+            string imgSrc = Url.Content("~/images/no_pic.jpg");
             if (type.Image != null)
             {
                 var base64 = Convert.ToBase64String(type.Image);
-                var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
-                ViewBag.Image = imgSrc;
+                imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+               // ViewBag.Image = imgSrc;
             }
             else
                 ViewBag.Image = Url.Content("~/images/no_pic.jpg");
 
-            return View(type);
+            TypeEditViewModel model = new TypeEditViewModel
+            {
+                TypeId = type.TypeId,
+                TypeName = type.TypeName,
+                DeviceName = type.DeviceName,
+                ValidityPierod = type.ValidityPierod,
+                Price = type.Price,
+                Image = type.Image,
+                TypeDesc = type.TypeDesc,
+                ProducerId = type.ProducerId,
+                LaboratoryId = type.LaboratoryId,
+                VerificationId = type.VerificationId,
+                ImageStr = imgSrc,
+                ProducerListVm = prodList,
+                LaboratoryListVm = labList,
+                VerificationListVm = verList
+            };
+
+            return View(model);
         }
 
         [HttpPost]
-        
-        public IActionResult Edit(int typeId, Type type)
+        public async Task<IActionResult> Edit(TypeEditViewModel model)
         {
-           if (ModelState.IsValid)
+            Type type = new Type
             {
-                
+                TypeId = model.TypeId,
+                TypeName = model.TypeName,
+                DeviceName = model.DeviceName,
+                ValidityPierod = model.ValidityPierod,
+                Price = model.Price,
+                Image = model.Image,
+                TypeDesc = model.TypeDesc,
+                ProducerId = model.ProducerId,
+                LaboratoryId = model.LaboratoryId,
+                VerificationId = model.VerificationId,
+            };
 
+            if (ModelState.IsValid)
+            {
                 if (HttpContext.Request.Form.Files.Count != 0)
                 {
                     var file = HttpContext.Request.Form.Files[0];
                     using (var stream = new MemoryStream())
                     {
-                        file.CopyTo(stream);
+                        await file.CopyToAsync(stream);
                         type.Image = stream.ToArray();
                     }
                 }
@@ -94,18 +111,15 @@ namespace Measuring_equipment.Controllers
                 {
                     if (type.TypeId != 0)
                     {
-                        Type tmp = repository.Types.First(t => t.TypeId == typeId);
+                        Type tmp = await repository.Types.FirstAsync(t => t.TypeId == type.TypeId);
                         type.Image = tmp.Image;
                     }
                 }
-                
-                
-                
+
                 repository.SaveType(type);
                 TempData["message"] = $"Zapisano {type.TypeName}.";
                 return RedirectToAction("Index");
-                
-            
+
               }
             else
             {
@@ -114,30 +128,16 @@ namespace Measuring_equipment.Controllers
                 ViewBag.Breadcrumb = "Edycja";
                 ViewBag.CreateMode = false;
 
-                ViewBag.Producers = (repository.Types.Select(t => new SelectListItem()
-                {
-                    Value = t.Producer.ProducerId.ToString(),
-                    Text = t.Producer.ProducerName
-                }).Distinct().ToList());
+                List<SelectListItem> prodList = await ProducerList();
+                List<SelectListItem> labList = await LaboratoryList();
+                List<SelectListItem> verList = await VerificationList();
 
-                ViewBag.Labs = (repository.Types.Select(t => new SelectListItem()
-                {
-                    Value = t.Laboratory.LaboratoryId.ToString(),
-                    Text = t.Laboratory.LaboratoryName
-                }).Distinct().ToList());
-
-                ViewBag.Verifications = (repository.Types.Select(t => new SelectListItem()
-                {
-                    Value = t.Verification.VerificationId.ToString(),
-                    Text = t.Verification.VerificationName
-                }).Distinct().ToList());
-
-                return View(type);
+                return await Edit(model.TypeId);
             }
         }
 
         [HttpPost]
-        public IActionResult LoadData()
+        public async Task<IActionResult> LoadData()
         {
             // DataTable Server side processing
 
@@ -211,50 +211,64 @@ namespace Measuring_equipment.Controllers
             int recordsFiltered = recordsTotal;
 
             //Paging  
-            var data = typeData.Skip(skip).Take(pageSize).ToList();
+            var data = await typeData.Skip(skip).Take(pageSize).ToListAsync();
 
             //Returning Json Data  
             return Json(new { draw, recordsFiltered, recordsTotal, data });
         }
 
-        public ViewResult Create()
+        public async Task<ViewResult> Create()
         {
             ViewBag.Breadcrumb = "Nowe urządzenie";
             ViewBag.CreateMode = true;
 
             //  Producers, Labs and Veryfications values for select options
-            ViewBag.Producers = (repository.Types.Select(t => new SelectListItem()
-            {
-                Value = t.Producer.ProducerId.ToString(),
-                Text = t.Producer.ProducerName
-            }).Distinct().ToList());
+            List<SelectListItem> prodList = await ProducerList();
+            List<SelectListItem> labList = await LaboratoryList();
+            List<SelectListItem> verList = await VerificationList();
 
-            ViewBag.Labs = (repository.Types.Select(t => new SelectListItem()
-            {
-                Value = t.Laboratory.LaboratoryId.ToString(),
-                Text = t.Laboratory.LaboratoryName
-            }).Distinct().ToList());
-
-            ViewBag.Verifications = (repository.Types.Select(t => new SelectListItem()
-            {
-                Value = t.Verification.VerificationId.ToString(),
-                Text = t.Verification.VerificationName
-            }).Distinct().ToList());
-
-            
-
-            return View("Edit", new Type());
+            return View("Edit", new TypeEditViewModel{
+                ProducerListVm = prodList,
+                LaboratoryListVm = labList,
+                VerificationListVm = verList});
         }
 
         [HttpPost]
-        public IActionResult Delete(int typeId)
+        public async Task<IActionResult> Delete(int typeId)
         {
-            Type deletedType = repository.DeleteType(typeId);
+            Type deletedType = await repository.DeleteTypeAsync(typeId);
             if (deletedType != null)
             {
                 TempData["message"] = $"Usunięto {deletedType.TypeName}.";
             }
             return RedirectToAction("Index");
+        }
+
+        private async Task<List<SelectListItem>> ProducerList()
+        {
+            return await repository.Types.Select(t => new SelectListItem()
+            {
+                Value = t.Producer.ProducerId.ToString(),
+                Text = t.Producer.ProducerName
+            }).Distinct().ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> LaboratoryList()
+        {
+            return await repository.Types.Select(t => new SelectListItem()
+            {
+                Value = t.Laboratory.LaboratoryId.ToString(),
+                Text = t.Laboratory.LaboratoryName
+            }).Distinct().ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> VerificationList()
+        {
+            return await repository.Types.Select(t => new SelectListItem()
+            {
+                Value = t.Verification.VerificationId.ToString(),
+                Text = t.Verification.VerificationName
+            }).Distinct().ToListAsync();
         }
     }
 }
