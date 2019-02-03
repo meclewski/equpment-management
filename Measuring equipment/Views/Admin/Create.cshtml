@@ -1,12 +1,14 @@
 ﻿@model AdminEditViewModel
 @{
-    ViewData["Title"] = "Karta Ewidencyjna przyrządu pomiarowego";
-    //ViewBag.Title = "Karta Ewidencyjna przyrządu pomiarowego";
+    ViewData["Title"] = "Dodawanie nowego przyrządu";
+    
     Layout = "_AdminLayout";
 }
 
-<form asp-action="Edit" method="post">
+<form asp-action="Create" method="post">
     <input type="hidden" asp-for="DeviceId" />
+
+
     <div class=" row">
         <div class="border col-md-12">
             <div class="form-group ">

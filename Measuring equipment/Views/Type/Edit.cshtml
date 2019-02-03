@@ -2,10 +2,7 @@
 
 @{
     ViewData["Title"] = ViewBag.CreateMode ? "Dodawanie nowego typu" : "Edycja typu";
-
     Layout = "_AdminLayout";
-
-
 }
 
 <div asp-validation-summary="All" class="text-danger"></div>
@@ -53,12 +50,14 @@
                 <select asp-for="ProducerId" class="form-control" asp-items="Model.ProducerListVm">
                     <option disabled selected value="">Wybierz typ</option>
                 </select>
+                <span asp-validation-for="ProducerId" class="text-danger"></span>
             </div>
             <div class="form-group col-md-6">
                 <label asp-for="LaboratoryId" class="control-label">Laboratorium</label>
                 <select asp-for="LaboratoryId" class="form-control" asp-items="Model.LaboratoryListVm">
                     <option disabled selected value="">Wybierz typ</option>
                 </select>
+                <span asp-validation-for="LaboratoryId" class="text-danger"></span>
             </div>
         </div>
         <div class=" row">
@@ -67,6 +66,7 @@
                 <select asp-for="VerificationId" class="form-control" asp-items="Model.VerificationListVm">
                     <option disabled selected value="">Wybierz typ</option>
                 </select>
+                <span asp-validation-for="VerificationId" class="text-danger"></span>
             </div>
         </div>
 

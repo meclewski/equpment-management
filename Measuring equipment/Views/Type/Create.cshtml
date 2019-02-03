@@ -1,0 +1,94 @@
+﻿@model TypeEditViewModel
+
+@{
+    ViewData["Title"] = "Dodawanie nowego typu";
+    Layout = "_AdminLayout";
+}
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="TypeId" />
+    <div class=" row">
+        <div class="form-group col-md-6">
+            <label asp-for="TypeName" class="control-label">Typ</label>
+            <input asp-for="TypeName" class="form-control" />
+            <span asp-validation-for="TypeName" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="DeviceName" class="control-label">Nazwa urządzenia</label>
+            <input asp-for="DeviceName" class="form-control" />
+            <span asp-validation-for="DeviceName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class=" row">
+        <div class="form-group col-md-6">
+            <label asp-for="ValidityPierod" class="control-label">Czasokres</label>
+            <input asp-for="ValidityPierod" class="form-control" />
+            <span asp-validation-for="ValidityPierod" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Price" class="control-label">Cena</label>
+            <input asp-for="Price" class="form-control" />
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+    </div>
+    <div class=" row">
+        <div class="form-group col-md-6">
+            <label asp-for="Image" class="control-label">Zdjęcie</label>
+            <input type="file" name="files" asp-for="Image" />
+            <span asp-validation-for="Image" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <div class="img-max mx-auto p-2">
+                <img class="img-fluid mx-auto d-block" src="@Model.ImageStr" alt="">
+            </div>
+        </div>
+    </div>
+    <div class=" row">
+        <div class="form-group col-md-6">
+            <label asp-for="ProducerId" class="control-label">Producent</label>
+            <select asp-for="ProducerId" class="form-control" asp-items="Model.ProducerListVm">
+                <option disabled selected value="">Wybierz typ</option>
+            </select>
+            <span asp-validation-for="ProducerId" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="LaboratoryId" class="control-label">Laboratorium</label>
+            <select asp-for="LaboratoryId" class="form-control" asp-items="Model.LaboratoryListVm">
+                <option disabled selected value="">Wybierz typ</option>
+            </select>
+            <span asp-validation-for="LaboratoryId" class="text-danger"></span>
+        </div>
+    </div>
+    <div class=" row">
+        <div class="form-group col-md-6">
+            <label asp-for="VerificationId" class="control-label">Rodzaj weryfikacji</label>
+            <select asp-for="VerificationId" class="form-control" asp-items="Model.VerificationListVm">
+                <option disabled selected value="">Wybierz typ</option>
+            </select>
+            <span asp-validation-for="VerificationId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="border col-md-12">
+            <div class="form-group">
+                <label asp-for="TypeDesc" class="control-label"></label>
+                <input asp-for="TypeDesc" class="form-control" />
+                <span asp-validation-for="TypeDesc" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <br />
+    <span style="float:left;">
+        <button class="btn btn-primary" type="submit">Zapisz</button>
+        <a asp-controller="Type" asp-action="Index" class="btn btn-secondary">Anuluj</a>
+    </span>
+</form>
+
+
+<form asp-action="Delete" method="post">
+    <span style="float:left; margin-left:4px">
+        <input type="hidden" asp-for="TypeId" />
+        <button type="submit" class="btn btn-danger">Usuń</button>
+    </span>
+</form>

@@ -41,7 +41,6 @@ namespace Measuring_equipment.Controllers
             Type type = repository.Types.FirstOrDefault(t => t.TypeId == typeId);
 
             ViewBag.Breadcrumb = "Edycja";
-            ViewBag.CreateMode = false;
 
             List<SelectListItem> prodList = await ProducerList();
             List<SelectListItem> labList = await LaboratoryList();
@@ -53,7 +52,6 @@ namespace Measuring_equipment.Controllers
             {
                 var base64 = Convert.ToBase64String(type.Image);
                 imgSrc = String.Format("data:image/gif;base64,{0}", base64);
-               // ViewBag.Image = imgSrc;
             }
             else
                 ViewBag.Image = Url.Content("~/images/no_pic.jpg");
@@ -126,7 +124,6 @@ namespace Measuring_equipment.Controllers
                 TempData["error"] = $"Uzupełnij wszystkie wymagane dane";
 
                 ViewBag.Breadcrumb = "Edycja";
-                ViewBag.CreateMode = false;
 
                 List<SelectListItem> prodList = await ProducerList();
                 List<SelectListItem> labList = await LaboratoryList();
@@ -134,6 +131,88 @@ namespace Measuring_equipment.Controllers
 
                 return await Edit(model.TypeId);
             }
+        }
+
+        
+
+        public async Task<ViewResult> Create()
+        {
+            ViewBag.Breadcrumb = "Nowe urządzenie";
+
+            //  Producers, Labs and Veryfications values for select options
+            List<SelectListItem> prodList = await ProducerList();
+            List<SelectListItem> labList = await LaboratoryList();
+            List<SelectListItem> verList = await VerificationList();
+
+            return View("Create", new TypeEditViewModel{
+                ProducerListVm = prodList,
+                LaboratoryListVm = labList,
+                VerificationListVm = verList});
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(TypeEditViewModel model)
+        {
+
+            Type type = new Type
+            {
+                TypeId = model.TypeId,
+                TypeName = model.TypeName,
+                DeviceName = model.DeviceName,
+                ValidityPierod = model.ValidityPierod,
+                Price = model.Price,
+                Image = model.Image,
+                TypeDesc = model.TypeDesc,
+                ProducerId = model.ProducerId,
+                LaboratoryId = model.LaboratoryId,
+                VerificationId = model.VerificationId,
+            };
+
+            if (ModelState.IsValid)
+            {
+                if (HttpContext.Request.Form.Files.Count != 0)
+                {
+                    var file = HttpContext.Request.Form.Files[0];
+                    using (var stream = new MemoryStream())
+                    {
+                        await file.CopyToAsync(stream);
+                        type.Image = stream.ToArray();
+                    }
+                }
+                else
+                {
+                    if (type.TypeId != 0)
+                    {
+                        Type tmp = await repository.Types.FirstAsync(t => t.TypeId == type.TypeId);
+                        type.Image = tmp.Image;
+                    }
+                }
+
+                repository.SaveType(type);
+                TempData["message"] = $"Zapisano {type.TypeName}.";
+                return RedirectToAction("Index");
+
+            }
+            else
+            {
+                TempData["error"] = $"Uzupełnij wszystkie wymagane dane";
+
+                ViewBag.Breadcrumb = "Tworzenie";
+                ViewBag.CreateMode = true;
+
+                return await Create();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int typeId)
+        {
+            Type deletedType = await repository.DeleteTypeAsync(typeId);
+            if (deletedType != null)
+            {
+                TempData["message"] = $"Usunięto {deletedType.TypeName}.";
+            }
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -165,11 +244,11 @@ namespace Measuring_equipment.Controllers
 
             int recordsTotal = 0;
 
-            
+
 
             // getting all Device data  
             var typeData = (from tempType in repository.TypesDT
-                              select tempType);
+                            select tempType);
 
 
 
@@ -215,33 +294,6 @@ namespace Measuring_equipment.Controllers
 
             //Returning Json Data  
             return Json(new { draw, recordsFiltered, recordsTotal, data });
-        }
-
-        public async Task<ViewResult> Create()
-        {
-            ViewBag.Breadcrumb = "Nowe urządzenie";
-            ViewBag.CreateMode = true;
-
-            //  Producers, Labs and Veryfications values for select options
-            List<SelectListItem> prodList = await ProducerList();
-            List<SelectListItem> labList = await LaboratoryList();
-            List<SelectListItem> verList = await VerificationList();
-
-            return View("Edit", new TypeEditViewModel{
-                ProducerListVm = prodList,
-                LaboratoryListVm = labList,
-                VerificationListVm = verList});
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Delete(int typeId)
-        {
-            Type deletedType = await repository.DeleteTypeAsync(typeId);
-            if (deletedType != null)
-            {
-                TempData["message"] = $"Usunięto {deletedType.TypeName}.";
-            }
-            return RedirectToAction("Index");
         }
 
         private async Task<List<SelectListItem>> ProducerList()

@@ -24,7 +24,8 @@ namespace Measuring_equipment.Models.ViewModels
         public string DeviceDesc { get; set; }
         [Required(ErrorMessage = "Proszę określić czy urządzenie jest używane.")]
         public bool CurrentlyInUse { get; set; } = true;
-        [Required (ErrorMessage = "Proszę podać typ urządzenia")]
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Proszę wybrać wartość")]
         public int TypeId { get; set; }
         public string DeviceName { get; set; }
         public string ProducerName { get; set; }

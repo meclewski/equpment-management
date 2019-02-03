@@ -165,8 +165,7 @@ namespace Measuring_equipment.Controllers
         public async Task<ViewResult> Edit(int deviceId)
         {
             ViewBag.Breadcrumb = "Edycja";
-            ViewBag.CreateMode = false;
-
+            
             Device device = await repository.Devices
                 .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
 
@@ -239,9 +238,7 @@ namespace Measuring_equipment.Controllers
             {
                 
                 TempData["error"] = $"Uzupełnij wszystkie wymagane dane";
-
-                ViewBag.CreateMode = false;
-
+                
                 //User name
                 ViewBag.userName = userManager.GetUserName(HttpContext.User);
 
@@ -254,7 +251,6 @@ namespace Measuring_equipment.Controllers
 
         {
             ViewBag.Breadcrumb = "Nowe urządzenie";
-            ViewBag.CreateMode = true;
             
             //User name
             ViewBag.userName = userManager.GetUserName(HttpContext.User);
@@ -262,10 +258,11 @@ namespace Measuring_equipment.Controllers
             //Get last Device for next RegistrationNo count
             Device device = await repository.Devices.OrderBy(d => d.RegistrationNo).LastAsync();
            
-            return View("Edit", new AdminEditViewModel {
+            return View("Create", new AdminEditViewModel {
                 RegistrationNo = device.RegistrationNo +1,
                 TypeListVm = typeList});
         }   
+
         [HttpPost]
         public async Task<IActionResult> Create (AdminEditViewModel model)
         {
@@ -274,7 +271,7 @@ namespace Measuring_equipment.Controllers
             {
                 Device device = new Device
                 {
-                    DeviceId = model.DeviceId,
+                    
                     RegistrationNo = model.RegistrationNo,
                     InventoryNo = model.InventoryNo,
                     SerialNo = model.SerialNo,
@@ -296,12 +293,10 @@ namespace Measuring_equipment.Controllers
 
                 TempData["error"] = $"Uzupełnij wszystkie wymagane dane";
 
-                ViewBag.CreateMode = false;
-
                 //User name
                 ViewBag.userName = userManager.GetUserName(HttpContext.User);
 
-                return await Edit(model.DeviceId);
+                return await Create();
             }
         }
 
@@ -322,7 +317,7 @@ namespace Measuring_equipment.Controllers
             {
                 Value = t.TypeId.ToString(),
                 Text = t.TypeName
-            }).Distinct().ToListAsync();
+            }).Distinct().OrderBy(t => t.Text).ToListAsync();
         }
 
         public async Task<IActionResult> GetData(int typeId)
@@ -349,7 +344,7 @@ namespace Measuring_equipment.Controllers
         public async Task<IActionResult> GetDataProd(int typeId)
         {
             Type type = await repository.Types.FirstAsync(t => t.TypeId == typeId);
-            int producerId = type.ProducerId;
+            int? producerId = type.ProducerId;
             Producer producerSelected = await repository.Producers.FirstAsync(p => p.ProducerId == producerId);
 
             Producer producerresult = new Producer()
@@ -364,7 +359,7 @@ namespace Measuring_equipment.Controllers
         public async Task<IActionResult> GetDataVer(int typeId)
         {
             Type type = await repository.Types.FirstAsync(t => t.TypeId == typeId);
-            int verificationId = type.VerificationId;
+            int? verificationId = type.VerificationId;
             Verification verificationSelected = await repository.Verifications.FirstAsync(p => p.VerificationId == verificationId);
 
             Verification verificationresult = new Verification()

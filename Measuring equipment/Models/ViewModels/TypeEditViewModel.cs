@@ -18,10 +18,13 @@ namespace Measuring_equipment.Models.ViewModels
         public byte[] Image { get; set; }
         public string TypeDesc { get; set; }
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage="Proszę wybrać wartość")]
         public int ProducerId { get; set; }
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Proszę wybrać wartość")]
         public int LaboratoryId { get; set; }
         [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Proszę wybrać wartość")]
         public int VerificationId { get; set; }
         public string ImageStr { get; set; }
         public List<SelectListItem> ProducerListVm { get; set; }
