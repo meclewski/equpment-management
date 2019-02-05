@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Measuring_equipment.Controllers
 {
@@ -172,6 +173,8 @@ namespace Measuring_equipment.Controllers
             
             // Types value for select option 
             List<SelectListItem> typeList = await TypeList();
+            List<SelectListItem> placeList = await PlaceList();
+            List<SelectListItem> userList = await UserList();
 
             //User name
             ViewBag.userName = userManager.GetUserName(HttpContext.User);
@@ -202,7 +205,12 @@ namespace Measuring_equipment.Controllers
                 ProducerName = device.Type.Producer.ProducerName,
                 VerificationName = device.Type.Verification.VerificationName,
                 ImageStr = imgSrc,
-                TypeListVm = typeList
+                TypeListVm = typeList,
+                PlaceId = device.PlaceId,
+                PlaceListVm = placeList,
+                DepartmentName = device.Place.Department.DepartmentName,
+                UserListVm = userList,
+                UserId = device.UserId
             };
 
             return View(model);
@@ -215,29 +223,38 @@ namespace Measuring_equipment.Controllers
             
             if (ModelState.IsValid)
             {
-                Device device = new Device
-                {
-                    DeviceId = model.DeviceId,
-                    RegistrationNo = model.RegistrationNo,
-                    InventoryNo = model.InventoryNo,
-                    SerialNo = model.SerialNo,
-                    VerificationDate = model.VerificationDate,
-                    TimeToVerification = model.TimeToVerification,
-                    VerificationResult = model.VerificationResult,
-                    ProductionDate = model.ProductionDate,
-                    DeviceDesc = model.DeviceDesc,
-                    CurrentlyInUse = model.CurrentlyInUse,
-                    TypeId = model.TypeId,
-                };
+                try { 
+                    Device device = new Device
+                    {
+                        DeviceId = model.DeviceId,
+                        RegistrationNo = model.RegistrationNo,
+                        InventoryNo = model.InventoryNo,
+                        SerialNo = model.SerialNo,
+                        VerificationDate = model.VerificationDate,
+                        TimeToVerification = model.TimeToVerification,
+                        VerificationResult = model.VerificationResult,
+                        ProductionDate = model.ProductionDate,
+                        DeviceDesc = model.DeviceDesc,
+                        CurrentlyInUse = model.CurrentlyInUse,
+                        TypeId = model.TypeId,
+                        PlaceId = model.PlaceId,
+                        UserId = model.UserId
+                    };
 
-                repository.SaveDevice(device);
-                TempData["message"] = $"Zapisano {String.Format("{0:D5}",model.RegistrationNo)}.";
-                return RedirectToAction("Index");
+                    repository.SaveDevice(device);
+                    TempData["message"] = $"Zapisano {String.Format("{0:D5}",model.RegistrationNo)}.";
+                    return RedirectToAction("Index");
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("Nie można zapisać zmian", e.Message);
+                    return await Edit(model.DeviceId);
+                }
             }
             else
             {
                 
-                TempData["error"] = $"Uzupełnij wszystkie wymagane dane";
+                TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
                 
                 //User name
                 ViewBag.userName = userManager.GetUserName(HttpContext.User);
@@ -255,12 +272,15 @@ namespace Measuring_equipment.Controllers
             //User name
             ViewBag.userName = userManager.GetUserName(HttpContext.User);
             List<SelectListItem> typeList = await TypeList();
+            List<SelectListItem> placeList = await PlaceList();
+            List<SelectListItem> userList = await UserList();
+
             //Get last Device for next RegistrationNo count
             Device device = await repository.Devices.OrderBy(d => d.RegistrationNo).LastAsync();
            
             return View("Create", new AdminEditViewModel {
                 RegistrationNo = device.RegistrationNo +1,
-                TypeListVm = typeList});
+                TypeListVm = typeList, PlaceListVm = placeList, UserListVm = userList});
         }   
 
         [HttpPost]
@@ -269,29 +289,39 @@ namespace Measuring_equipment.Controllers
 
             if (ModelState.IsValid)
             {
-                Device device = new Device
+                try
                 {
-                    
-                    RegistrationNo = model.RegistrationNo,
-                    InventoryNo = model.InventoryNo,
-                    SerialNo = model.SerialNo,
-                    VerificationDate = model.VerificationDate,
-                    TimeToVerification = model.TimeToVerification,
-                    VerificationResult = model.VerificationResult,
-                    ProductionDate = model.ProductionDate,
-                    DeviceDesc = model.DeviceDesc,
-                    CurrentlyInUse = model.CurrentlyInUse,
-                    TypeId = model.TypeId,
-                };
+                    Device device = new Device
+                    {
 
-                repository.SaveDevice(device);
-                TempData["message"] = $"Zapisano {String.Format("{0:D5}", model.RegistrationNo)}.";
-                return RedirectToAction("Index");
+                        RegistrationNo = model.RegistrationNo,
+                        InventoryNo = model.InventoryNo,
+                        SerialNo = model.SerialNo,
+                        VerificationDate = model.VerificationDate,
+                        TimeToVerification = model.TimeToVerification,
+                        VerificationResult = model.VerificationResult,
+                        ProductionDate = model.ProductionDate,
+                        DeviceDesc = model.DeviceDesc,
+                        CurrentlyInUse = model.CurrentlyInUse,
+                        TypeId = model.TypeId,
+                        PlaceId = model.PlaceId,
+                        UserId = model.UserId
+                    };
+
+                    repository.SaveDevice(device);
+                    TempData["message"] = $"Zapisano {String.Format("{0:D5}", model.RegistrationNo)}.";
+                    return RedirectToAction("Index");
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("Nie można utworzyć urządzenia", e.Message);
+                    return await Create();
+                }
             }
             else
             {
 
-                TempData["error"] = $"Uzupełnij wszystkie wymagane dane";
+                TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
 
                 //User name
                 ViewBag.userName = userManager.GetUserName(HttpContext.User);
@@ -318,6 +348,27 @@ namespace Measuring_equipment.Controllers
                 Value = t.TypeId.ToString(),
                 Text = t.TypeName
             }).Distinct().OrderBy(t => t.Text).ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> PlaceList()
+        {
+            return await repository.Places.Select(t => new SelectListItem()
+            {
+                Value = t.PlaceId.ToString(),
+                Text = t.PlaceName
+            }).Distinct().OrderBy(t => t.Text).ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> UserList()
+        {
+            var usersOfRole = await userManager.GetUsersInRoleAsync("Użytkownicy");
+            
+            return usersOfRole.Select(t => new SelectListItem()
+            {
+                Value = t.Id.ToString(),
+                Text = t.UserName
+            }
+            ).Distinct().OrderBy(t => t.Text).ToList();
         }
 
         public async Task<IActionResult> GetData(int typeId)
@@ -369,6 +420,22 @@ namespace Measuring_equipment.Controllers
             };
             
             return new JsonResult(verificationresult);
+        }
+
+
+        public async Task<IActionResult> GetDataPlace(int placeId)
+        {
+            Place place = await repository.Places.FirstAsync(t => t.PlaceId == placeId);
+            int? departmentId = place.DepartmentId;
+            Department departmentSelected = await repository.Departments.FirstAsync(p => p.DepartmentId == departmentId);
+
+            Department departmentresult = new Department()
+            {
+                DepartmentId = departmentSelected.DepartmentId,
+                DepartmentName = departmentSelected.DepartmentName
+            };
+
+            return new JsonResult(departmentresult);
         }
 
         [HttpGet]
@@ -475,12 +542,13 @@ namespace Measuring_equipment.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UsersEdit(string id,  string email, string password)
+        public async Task<IActionResult> UsersEdit(string id, string username, string email, string password)
         {
             AppUser user = await userManager.FindByIdAsync(id);
             if (user != null)
             {
                 user.Email = email;
+                user.UserName = username;
                 IdentityResult validEmail = await userValidator.ValidateAsync(userManager, user);
                 if (!validEmail.Succeeded)
                 {

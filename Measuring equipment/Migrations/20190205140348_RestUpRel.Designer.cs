@@ -4,14 +4,16 @@ using Measuring_equipment.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Measuring_equipment.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190205140348_RestUpRel")]
+    partial class RestUpRel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,8 +59,6 @@ namespace Measuring_equipment.Migrations
                     b.Property<DateTime?>("TimeToVerification");
 
                     b.Property<int>("TypeId");
-
-                    b.Property<string>("UserId");
 
                     b.Property<DateTime?>("VerificationDate");
 

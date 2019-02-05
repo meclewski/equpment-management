@@ -4,14 +4,16 @@ using Measuring_equipment.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Measuring_equipment.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190204094728_PlacesDepts")]
+    partial class PlacesDepts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,8 +48,6 @@ namespace Measuring_equipment.Migrations
 
                     b.Property<string>("InventoryNo");
 
-                    b.Property<int>("PlaceId");
-
                     b.Property<DateTime?>("ProductionDate");
 
                     b.Property<int>("RegistrationNo");
@@ -58,15 +58,11 @@ namespace Measuring_equipment.Migrations
 
                     b.Property<int>("TypeId");
 
-                    b.Property<string>("UserId");
-
                     b.Property<DateTime?>("VerificationDate");
 
                     b.Property<string>("VerificationResult");
 
                     b.HasKey("DeviceId");
-
-                    b.HasIndex("PlaceId");
 
                     b.HasIndex("TypeId");
 
@@ -103,8 +99,6 @@ namespace Measuring_equipment.Migrations
                     b.Property<string>("PlaceName");
 
                     b.HasKey("PlaceId");
-
-                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Places");
                 });
@@ -176,23 +170,10 @@ namespace Measuring_equipment.Migrations
 
             modelBuilder.Entity("Measuring_equipment.Models.Device", b =>
                 {
-                    b.HasOne("Measuring_equipment.Models.Place", "Place")
-                        .WithMany("Devices")
-                        .HasForeignKey("PlaceId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Measuring_equipment.Models.Type", "Type")
                         .WithMany("Devices")
                         .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("Measuring_equipment.Models.Place", b =>
-                {
-                    b.HasOne("Measuring_equipment.Models.Department", "Department")
-                        .WithMany("Places")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Measuring_equipment.Models.Type", b =>
@@ -200,17 +181,17 @@ namespace Measuring_equipment.Migrations
                     b.HasOne("Measuring_equipment.Models.Laboratory", "Laboratory")
                         .WithMany("Types")
                         .HasForeignKey("LaboratoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Measuring_equipment.Models.Producer", "Producer")
                         .WithMany("Types")
                         .HasForeignKey("ProducerId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Measuring_equipment.Models.Verification", "Verification")
                         .WithMany("Types")
                         .HasForeignKey("VerificationId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

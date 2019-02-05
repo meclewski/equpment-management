@@ -14,6 +14,7 @@ namespace Measuring_equipment.Models.ViewModels
         public string DeviceName { get; set; }
         [Required(ErrorMessage = "Proszę podać czasokres wzorcowania.")]
         public int ValidityPierod { get; set; }
+        [RegularExpression(@"^\$?\d+(\.(\d{2}))?$")]
         public decimal Price { get; set; }
         public byte[] Image { get; set; }
         public string TypeDesc { get; set; }

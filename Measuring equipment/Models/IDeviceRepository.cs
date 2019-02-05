@@ -13,6 +13,8 @@ namespace Measuring_equipment.Models
         IQueryable<Type> Types { get; }
         IQueryable<Producer> Producers { get; }
         IQueryable<Verification> Verifications { get; }
+        IQueryable<Place> Places { get; }
+        IQueryable<Department> Departments { get; }
 
         void SaveDevice(Device device);
         

@@ -17,13 +17,18 @@ namespace Measuring_equipment.Models
 
         public IQueryable<Device> Devices => context.Devices
             .Include(x => x.Type).ThenInclude(v => v.Verification)
-            .Include(x => x.Type).ThenInclude(x=>x.Producer)
-            .Include(x=>x.Type).ThenInclude(x=>x.Laboratory);
+            .Include(x => x.Type).ThenInclude(x => x.Producer)
+            .Include(x => x.Type).ThenInclude(x => x.Laboratory)
+            .Include(x => x.Place).ThenInclude(x => x.Department);
+            
 
         public IQueryable<Device> DevicesDT => context.Devices;
         public IQueryable<Producer> Producers => context.Producers;
         public IQueryable<Type> Types => context.Types;
         public IQueryable<Verification> Verifications => context.Verification;
+        public IQueryable<Department> Departments => context.Departments;
+        public IQueryable<Place> Places => context.Places;
+
 
         public void SaveDevice(Device device)
         {
@@ -55,7 +60,8 @@ namespace Measuring_equipment.Models
                     dbEntry.TypeId = device.TypeId;
                     dbEntry.RegistrationNo = device.RegistrationNo;
                     dbEntry.CurrentlyInUse = device.CurrentlyInUse;
-                    
+                    dbEntry.PlaceId = device.PlaceId;
+                    dbEntry.UserId = device.UserId;
                 }
             }
             context.SaveChanges();

@@ -40,7 +40,7 @@ namespace Measuring_equipment.Controllers
         {
             Type type = repository.Types.FirstOrDefault(t => t.TypeId == typeId);
 
-            ViewBag.Breadcrumb = "Edycja";
+            ViewBag.Breadcrumb = "Edycja typu";
 
             List<SelectListItem> prodList = await ProducerList();
             List<SelectListItem> labList = await LaboratoryList();
@@ -53,8 +53,8 @@ namespace Measuring_equipment.Controllers
                 var base64 = Convert.ToBase64String(type.Image);
                 imgSrc = String.Format("data:image/gif;base64,{0}", base64);
             }
-            else
-                ViewBag.Image = Url.Content("~/images/no_pic.jpg");
+            //else
+             //   ViewBag.Image = Url.Content("~/images/no_pic.jpg");
 
             TypeEditViewModel model = new TypeEditViewModel
             {
@@ -80,48 +80,59 @@ namespace Measuring_equipment.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(TypeEditViewModel model)
         {
-            Type type = new Type
-            {
-                TypeId = model.TypeId,
-                TypeName = model.TypeName,
-                DeviceName = model.DeviceName,
-                ValidityPierod = model.ValidityPierod,
-                Price = model.Price,
-                Image = model.Image,
-                TypeDesc = model.TypeDesc,
-                ProducerId = model.ProducerId,
-                LaboratoryId = model.LaboratoryId,
-                VerificationId = model.VerificationId,
-            };
-
             if (ModelState.IsValid)
-            {
-                if (HttpContext.Request.Form.Files.Count != 0)
+                try
                 {
-                    var file = HttpContext.Request.Form.Files[0];
-                    using (var stream = new MemoryStream())
+
+
                     {
-                        await file.CopyToAsync(stream);
-                        type.Image = stream.ToArray();
+                        Type type = new Type
+                        {
+                            TypeId = model.TypeId,
+                            TypeName = model.TypeName,
+                            DeviceName = model.DeviceName,
+                            ValidityPierod = model.ValidityPierod,
+                            Price = model.Price,
+                            Image = model.Image,
+                            TypeDesc = model.TypeDesc,
+                            ProducerId = model.ProducerId,
+                            LaboratoryId = model.LaboratoryId,
+                            VerificationId = model.VerificationId,
+                        };
+
+                        if (HttpContext.Request.Form.Files.Count != 0)
+                        {
+                            var file = HttpContext.Request.Form.Files[0];
+                            using (var stream = new MemoryStream())
+                            {
+                                await file.CopyToAsync(stream);
+                                type.Image = stream.ToArray();
+                            }
+                        }
+
+                        else
+                        {
+                            if (type.TypeId != 0)
+                            {
+                                Type tmp = await repository.Types.FirstAsync(t => t.TypeId == type.TypeId);
+                                type.Image = tmp.Image;
+                            }
+                        }
+
+                        repository.SaveType(type);
+                        TempData["message"] = $"Zapisano {type.TypeName}.";
+                        return RedirectToAction("Index");
+
                     }
                 }
-                else
+                catch (Exception e)
                 {
-                    if (type.TypeId != 0)
-                    {
-                        Type tmp = await repository.Types.FirstAsync(t => t.TypeId == type.TypeId);
-                        type.Image = tmp.Image;
-                    }
+                    ModelState.AddModelError("Nie można zapisać zmian", e.Message);
+                    return await Edit(model.TypeId);
                 }
-
-                repository.SaveType(type);
-                TempData["message"] = $"Zapisano {type.TypeName}.";
-                return RedirectToAction("Index");
-
-              }
             else
             {
-                TempData["error"] = $"Uzupełnij wszystkie wymagane dane";
+                TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
 
                 ViewBag.Breadcrumb = "Edycja";
 
@@ -133,11 +144,9 @@ namespace Measuring_equipment.Controllers
             }
         }
 
-        
-
         public async Task<ViewResult> Create()
         {
-            ViewBag.Breadcrumb = "Nowe urządzenie";
+            ViewBag.Breadcrumb = "Nowy typ";
 
             //  Producers, Labs and Veryfications values for select options
             List<SelectListItem> prodList = await ProducerList();
@@ -153,49 +162,55 @@ namespace Measuring_equipment.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(TypeEditViewModel model)
         {
-
-            Type type = new Type
-            {
-                TypeId = model.TypeId,
-                TypeName = model.TypeName,
-                DeviceName = model.DeviceName,
-                ValidityPierod = model.ValidityPierod,
-                Price = model.Price,
-                Image = model.Image,
-                TypeDesc = model.TypeDesc,
-                ProducerId = model.ProducerId,
-                LaboratoryId = model.LaboratoryId,
-                VerificationId = model.VerificationId,
-            };
-
             if (ModelState.IsValid)
             {
-                if (HttpContext.Request.Form.Files.Count != 0)
-                {
-                    var file = HttpContext.Request.Form.Files[0];
-                    using (var stream = new MemoryStream())
+                try {
+                    Type type = new Type
                     {
-                        await file.CopyToAsync(stream);
-                        type.Image = stream.ToArray();
-                    }
-                }
-                else
-                {
-                    if (type.TypeId != 0)
+                        TypeId = model.TypeId,
+                        TypeName = model.TypeName,
+                        DeviceName = model.DeviceName,
+                        ValidityPierod = model.ValidityPierod,
+                        Price = model.Price,
+                        Image = model.Image,
+                        TypeDesc = model.TypeDesc,
+                        ProducerId = model.ProducerId,
+                        LaboratoryId = model.LaboratoryId,
+                        VerificationId = model.VerificationId,
+                    };
+
+                    if (HttpContext.Request.Form.Files.Count != 0)
                     {
-                        Type tmp = await repository.Types.FirstAsync(t => t.TypeId == type.TypeId);
-                        type.Image = tmp.Image;
+                        var file = HttpContext.Request.Form.Files[0];
+                        using (var stream = new MemoryStream())
+                        {
+                            await file.CopyToAsync(stream);
+                            type.Image = stream.ToArray();
+                        }
                     }
+                    else
+                    {
+                        if (type.TypeId != 0)
+                        {
+                            Type tmp = await repository.Types.FirstAsync(t => t.TypeId == type.TypeId);
+                            type.Image = tmp.Image;
+                        }
+                    }
+
+                    repository.SaveType(type);
+                    TempData["message"] = $"Zapisano {type.TypeName}.";
+                    return RedirectToAction("Index");
+
                 }
-
-                repository.SaveType(type);
-                TempData["message"] = $"Zapisano {type.TypeName}.";
-                return RedirectToAction("Index");
-
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("Nie można utworzyć typu", e.Message);
+                    return await Create();
+                }
             }
             else
             {
-                TempData["error"] = $"Uzupełnij wszystkie wymagane dane";
+                TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
 
                 ViewBag.Breadcrumb = "Tworzenie";
                 ViewBag.CreateMode = true;
@@ -207,10 +222,18 @@ namespace Measuring_equipment.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int typeId)
         {
-            Type deletedType = await repository.DeleteTypeAsync(typeId);
-            if (deletedType != null)
+            try
             {
-                TempData["message"] = $"Usunięto {deletedType.TypeName}.";
+                Type deletedType = await repository.DeleteTypeAsync(typeId);
+                if (deletedType != null)
+                {
+                    TempData["message"] = $"Usunięto {deletedType.TypeName}.";
+                }
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError("Nie można usunąć, istnieją urządzenia tego typu", e.Message);
+                TempData["error"] = $"Nie można usunąć, istnieją urządzenia tego typu";
             }
             return RedirectToAction("Index");
         }
