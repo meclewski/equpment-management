@@ -1,0 +1,37 @@
+﻿@model Measuring_equipment.Models.Place
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "_AdminLayout";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Place</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.PlaceName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PlaceName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PlaceDesc)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PlaceDesc)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Department)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Department.DepartmentId)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.PlaceId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

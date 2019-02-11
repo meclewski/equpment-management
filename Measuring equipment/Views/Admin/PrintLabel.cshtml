@@ -1,0 +1,81 @@
+﻿@model AdminEditViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintLabel</title>
+    <link asp-href-include="lib\bootstrap\dist\css\bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    @if (TempData["error"] != null)
+    {
+        <div class="alert alert-danger mt-1">@TempData["error"]</div>
+    }
+    <form asp-action="PrintLabel" method="post">
+        <input type="hidden" asp-for="DeviceId" />
+        <div id="printlabel">
+            <div class="row">
+                <div class="border col-2">
+                    <div class="img-max mx-auto p-1">
+                        <img class="img-fluid mx-auto d-block" src="@Url.Content("~/images/logo.png")" alt="">
+                        <div class=" text-center ">Laboratorim kalibracji</div>
+                    </div>
+                </div>
+                <div class="border col-6">
+                    <div class="form-group text-center">
+                        <label asp-for="RegistrationNo">Numer idnetyfikacyjny</label>
+                        <h3 class="text-center">@String.Format("{0:D5}", Model.RegistrationNo)</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="border col-4">
+                    <div class="form-group text-center">
+                        <label asp-for="VerificationDate">Data weryfikacji</label>
+                        <h3 class="text-center">@Model.VerificationDate.Value.ToShortDateString()</h3>
+                    </div>
+                </div>
+                <div class="border col-4 text-center">
+                    <div class="form-group ">
+                        <label asp-for="TimeToVerification">Data następnej wer.</label>
+                        <h3 class="text-center">@Model.TimeToVerification.Value.ToShortDateString()</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-8">
+                    <p class="text-center small">@Model.VerificationResult</p>
+                </div>
+            </div>
+        </div>
+    </form>
+    <br />
+    <div class="btn-block ">
+        <button id="print" class="btn btn-primary print">Drukuj</button>
+        <a class="btn btn-danger" href="javascript:window.close()">Zamknij</a>
+    </div>
+
+    <!-- jQuery -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.14.0/printThis.min.js"></script>
+
+    <script>
+        $(function () {
+            $("#print").click(function () {
+                $("#printlabel").printThis({
+                    importCSS: true,
+                    header: null,
+                    printContainer: true
+                });
+            });
+        });
+    </script>
+</body>
+</html>

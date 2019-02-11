@@ -11,10 +11,7 @@ namespace Measuring_equipment.Models
         IQueryable<Device> Devices { get; }
         IQueryable<Device> DevicesDT { get; }
         IQueryable<Type> Types { get; }
-        IQueryable<Producer> Producers { get; }
-        IQueryable<Verification> Verifications { get; }
         IQueryable<Place> Places { get; }
-        IQueryable<Department> Departments { get; }
 
         void SaveDevice(Device device);
         

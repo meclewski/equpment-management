@@ -20,15 +20,16 @@ namespace Measuring_equipment.Models
             .Include(x => x.Type).ThenInclude(x => x.Producer)
             .Include(x => x.Type).ThenInclude(x => x.Laboratory)
             .Include(x => x.Place).ThenInclude(x => x.Department);
-            
 
         public IQueryable<Device> DevicesDT => context.Devices;
-        public IQueryable<Producer> Producers => context.Producers;
-        public IQueryable<Type> Types => context.Types;
-        public IQueryable<Verification> Verifications => context.Verification;
-        public IQueryable<Department> Departments => context.Departments;
-        public IQueryable<Place> Places => context.Places;
-
+       
+        public IQueryable<Type> Types => context.Types
+            .Include(x => x.Producer)
+            .Include(x => x.Verification)
+            .Include(x => x.Laboratory);
+       
+        public IQueryable<Place> Places => context.Places
+            .Include(x => x.Department);
 
         public void SaveDevice(Device device)
         {
@@ -79,6 +80,6 @@ namespace Measuring_equipment.Models
             return dbEntry;
         }
 
-
+        
     }
 }

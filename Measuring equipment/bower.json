@@ -12,7 +12,7 @@
     "moment": "2.22.2",
     "bootstrap": "v4.2.1",
     "datatables": "DataTables#1.10.19",
-    "datatables-responsive": "2.2.3"
+    "datatables-responsive": "1.0.6"
   },
   "resolutions": {
     "bootstrap": "v4.1.3",

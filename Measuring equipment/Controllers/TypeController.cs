@@ -16,13 +16,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Measuring_equipment.Models.ViewModels;
 
+
 namespace Measuring_equipment.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administratorzy")]
     public class TypeController : Controller
     {
         private ITypeRepository repository;
-        private readonly UserManager<AppUser> userManager;//private IHostingEnvironment he; 
+        private readonly UserManager<AppUser> userManager;
         public TypeController(ITypeRepository repo, UserManager<AppUser> userMgr, IHostingEnvironment e)
         {
             repository = repo;
@@ -36,11 +37,21 @@ namespace Measuring_equipment.Controllers
         }
 
 
-        public async Task<ViewResult> Edit(int typeId)
+        public async Task<IActionResult> Edit(int? typeId)
         {
+            if (typeId == null)
+            {
+                TempData["error"] = $"Nie odnaleziono.";
+                return RedirectToAction("Index");
+            }
+
             Type type = repository.Types.FirstOrDefault(t => t.TypeId == typeId);
 
-            ViewBag.Breadcrumb = "Edycja typu";
+            if (type == null)
+            {
+                TempData["error"] = $"Nie odnaleziono.";
+                return RedirectToAction("Index");
+            }
 
             List<SelectListItem> prodList = await ProducerList();
             List<SelectListItem> labList = await LaboratoryList();
@@ -53,8 +64,6 @@ namespace Measuring_equipment.Controllers
                 var base64 = Convert.ToBase64String(type.Image);
                 imgSrc = String.Format("data:image/gif;base64,{0}", base64);
             }
-            //else
-             //   ViewBag.Image = Url.Content("~/images/no_pic.jpg");
 
             TypeEditViewModel model = new TypeEditViewModel
             {
@@ -71,8 +80,9 @@ namespace Measuring_equipment.Controllers
                 ImageStr = imgSrc,
                 ProducerListVm = prodList,
                 LaboratoryListVm = labList,
-                VerificationListVm = verList
-            };
+                VerificationListVm = verList,
+                ReturnUrl = HttpContext.Request.Headers["Referer"]
+        };
 
             return View(model);
         }
@@ -83,9 +93,6 @@ namespace Measuring_equipment.Controllers
             if (ModelState.IsValid)
                 try
                 {
-
-
-                    {
                         Type type = new Type
                         {
                             TypeId = model.TypeId,
@@ -122,8 +129,6 @@ namespace Measuring_equipment.Controllers
                         repository.SaveType(type);
                         TempData["message"] = $"Zapisano {type.TypeName}.";
                         return RedirectToAction("Index");
-
-                    }
                 }
                 catch (Exception e)
                 {
@@ -133,8 +138,6 @@ namespace Measuring_equipment.Controllers
             else
             {
                 TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
-
-                ViewBag.Breadcrumb = "Edycja";
 
                 List<SelectListItem> prodList = await ProducerList();
                 List<SelectListItem> labList = await LaboratoryList();
@@ -146,17 +149,17 @@ namespace Measuring_equipment.Controllers
 
         public async Task<ViewResult> Create()
         {
-            ViewBag.Breadcrumb = "Nowy typ";
-
             //  Producers, Labs and Veryfications values for select options
             List<SelectListItem> prodList = await ProducerList();
             List<SelectListItem> labList = await LaboratoryList();
             List<SelectListItem> verList = await VerificationList();
 
-            return View("Create", new TypeEditViewModel{
+            return View("Create", new TypeEditViewModel {
                 ProducerListVm = prodList,
                 LaboratoryListVm = labList,
-                VerificationListVm = verList});
+                VerificationListVm = verList,
+                ReturnUrl = HttpContext.Request.Headers["Referer"]
+            });
         }
 
         [HttpPost]
@@ -199,7 +202,7 @@ namespace Measuring_equipment.Controllers
 
                     repository.SaveType(type);
                     TempData["message"] = $"Zapisano {type.TypeName}.";
-                    return RedirectToAction("Index");
+                    return Redirect(model.ReturnUrl);
 
                 }
                 catch (Exception e)
@@ -211,10 +214,6 @@ namespace Measuring_equipment.Controllers
             else
             {
                 TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
-
-                ViewBag.Breadcrumb = "Tworzenie";
-                ViewBag.CreateMode = true;
-
                 return await Create();
             }
         }

@@ -1,49 +1,43 @@
 ﻿@model IEnumerable<Device>
 @{
-    ViewBag.Title = "Lista sprzętu do kalibracji";
+    ViewBag.Title = "Lista sprzętu do weryfikacji do dnia " + DateTime.Today.AddMonths(1).ToShortDateString();
     Layout = "_AdminLayout";
 
 }
 
-<table id="dt" class="table table-bordered table-hover" width="100%">
-    <thead>
-        <tr>
-            <th>Numer Kalibracji</th>
-            <th>Numer Inwentarzowy</th>
-            <th>Numer Seryjny</th>
-            <th>Opis</th>
-            <th>Typ urządzenia</th>
-            <th>Akcje</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var d in Model)
-        {
+    <table id="dt_list" class="table table-bordered table-hover" width="100%">
+        <thead>
             <tr>
-                <td>@String.Format("{0:D5}", d.RegistrationNo) </td>
-                <td>@d.InventoryNo</td>
-                <td>@d.SerialNo</td>
-                <td>@d.DeviceDesc</td>
+                <th>Numer kalibracji</th>
+                <th>Nazwa urządzenia</th>
+                <th>Producent</th>
+                <th>Typ urządzenia</th>
+                <th>Numer seryjny</th>
+                <th data-priority="1">Miejsce użytkowania</th>
+                <th>Odpowiedzialny</th>
+                <th>Data Nast. Wer.</th>
 
-                <td>@d.Type.TypeName</td>
-                <td>
-                    <form asp-action="Delete" method="post">
-                        <div class="btn-group">
-
-                            <a asp-action="Edit" class="btn btn-sm btn-warning" asp-route-deviceId="@d.DeviceId">Edytuj</a>
-                            <input type="hidden" name="DeviceId" value="@d.DeviceId" />
-                            <button type="submit" class="btn btn-sm btn-danger">Usuń</button>
-
-                        </div>
-                    </form>
-                </td>
-
+                <th>Akcje</th>
             </tr>
-        }
-    </tbody>
-</table>
-<br />
-<div class="text-right">
-    <a asp-action="Create" class="btn btn-primary">Dodaj urządzenie</a>
-</div>
+        </thead>
+        <tbody>
+            @foreach (var d in Model)
+            {
+                <tr>
+                    <td>@String.Format("{0:D5}", d.RegistrationNo) </td>
+                    <td>@d.Type.DeviceName</td>
+                    <td>@d.Type.Producer.ProducerName</td>
+                    <td>@d.Type.TypeName</td>
+                    <td>@d.SerialNo</td>
+                    <td>@d.Place.PlaceName</td>
+                    <td>@d.UserId</td>
+                    <td>@d.TimeToVerification.Value.ToShortDateString()</td>
+
+                    <td>
+                        <a asp-action="Edit" class="btn btn-sm btn-secondary" asp-route-deviceId="@d.DeviceId">Edytuj</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 

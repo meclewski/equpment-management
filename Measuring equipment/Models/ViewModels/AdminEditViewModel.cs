@@ -44,5 +44,7 @@ namespace Measuring_equipment.Models.ViewModels
         public List<SelectListItem> UserListVm { get; set; }
         public string DepartmentName { get; set; }
         public string UserId { get; set; }
+        public string ValidityPierod { get; set; }
+        public string LaboratoryName { get; set; }
     }
 }

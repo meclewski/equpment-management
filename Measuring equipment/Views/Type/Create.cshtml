@@ -7,6 +7,7 @@
 
 <form asp-action="Create" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="TypeId" />
+    <input type="hidden" asp-for="ReturnUrl" value="@Model.ReturnUrl" />
     <div class=" row">
         <div class="form-group col-md-6">
             <label asp-for="TypeName" class="control-label">Typ</label>

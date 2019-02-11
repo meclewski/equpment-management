@@ -12,6 +12,7 @@ namespace Measuring_equipment.Models
         public int RegistrationNo { get; set; }
         public string InventoryNo { get; set; }
         public string SerialNo { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd MMM yyyy}")]
         public DateTime? VerificationDate { get; set; } = DateTime.Now;
         public DateTime? TimeToVerification { get; set; }
         public string VerificationResult { get; set; }

@@ -1,0 +1,42 @@
+﻿@model IEnumerable<Measuring_equipment.Models.Producer>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_AdminLayout";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProducerName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProducerDesc)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProducerName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProducerDesc)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ProducerId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ProducerId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ProducerId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

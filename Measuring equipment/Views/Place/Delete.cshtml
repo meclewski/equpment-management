@@ -1,0 +1,40 @@
+﻿@model Measuring_equipment.Models.Place
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "_AdminLayout";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Place</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.PlaceName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PlaceName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PlaceDesc)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PlaceDesc)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Department)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Department.DepartmentId)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="PlaceId" />
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

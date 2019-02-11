@@ -13,13 +13,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+
 
 namespace Measuring_equipment.Controllers
 {
     
-
-
     [Authorize (Roles ="Administratorzy")]
     public class AdminController : Controller
     {
@@ -44,133 +42,30 @@ namespace Measuring_equipment.Controllers
             passwordHasher = passwordHash;
         }
 
-        public ViewResult Index()
+        public ViewResult Index() => View();
+
+        public ViewResult List() => View(repository.Devices
+            .Where(d => d.CurrentlyInUse == true && d.TimeToVerification < DateTime.Today.AddMonths(1))
+            .OrderBy(d => d.TimeToVerification)
+            );
+
+        public async Task<IActionResult> Edit(int? deviceId)
         {
-            ViewBag.Breadcrumb = "Index";
-            return View();
-        }
-
-        // Load data for DataTable (server side proccessing)
-        [HttpPost]
-        public async Task<IActionResult> LoadData()
-        {
-            // DataTable Server side processing
-
-            var draw = HttpContext.Request.Form["draw"].FirstOrDefault();
-
-            // Skip number of Rows count  
-            var start = Request.Form["start"].FirstOrDefault();
-
-            // Paging Length   
-            var length = Request.Form["length"].FirstOrDefault();
-
-            // Sort Column Name  
-            var sortColumn = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
-
-            // Sort Column Direction (asc, desc)  
-            var sortColumnDirection = Request.Form["order[0][dir]"].FirstOrDefault();
-
-            // Search Value from (Search box)  
-            var searchValue = Request.Form["search[value]"].FirstOrDefault();
-
-            // Paging Size  
-            int pageSize = length != null ? Convert.ToInt32(length) : 0;
-
-            int skip = start != null ? Convert.ToInt32(start) : 0;
-
-            int recordsTotal = 0;
-
-           
-            // Getting all Device and Type data  
-            var deviceData = (from tempDevice in repository.DevicesDT
-                                             select tempDevice);
-
-            IQueryable<Tuple<Device, Type>> GetDeviceWithType()
+            if (deviceId == null)
             {
-                var dd = (from tempDevice in deviceData
-                                   join tempType in repository.Types on tempDevice.TypeId equals tempType.TypeId
-                                   select new Tuple<Device, Type>(tempDevice, tempType));
-                return dd;
-
+                TempData["error"] = $"Nie odnaleziono.";
+                return RedirectToAction("Index");
             }
-
-            //Search 
-            IQueryable<Tuple<Device,Type>> MatchesKeyword(IQueryable<Tuple<Device,Type>> list, string keyword)
-            {
-                var predicate = PredicateBuilder.New<Tuple<Device, Type>>();
-                               
-                predicate = predicate.Or(
-                         item =>  item.Item1.RegistrationNo.ToString().Contains(keyword)
-                         || item.Item1.InventoryNo.Contains(keyword)
-                         || item.Item1.SerialNo.Contains(keyword)
-                         || item.Item1.VerificationDate.ToString().Contains(keyword)
-                         || item.Item1.TimeToVerification.ToString().Contains(keyword)
-                         || item.Item1.VerificationResult.Contains(keyword)
-                         || item.Item1.ProductionDate.ToString().Contains(keyword)
-                         || item.Item1.DeviceDesc.Contains(keyword)
-                         || item.Item2.TypeName.Contains(keyword)
-                         || item.Item2.DeviceName.Contains(keyword)
-                      
-                );
-
-                return list.AsQueryable().Where(predicate);
-            }
-
-            IQueryable<Tuple<Device, Type>> deviceType = GetDeviceWithType();
-
-            if (!string.IsNullOrEmpty(searchValue))
-            {
-                
-                deviceType = MatchesKeyword(deviceType, searchValue);
-            }
-
-            //Choose useful columns
-            var deviceData2 = (from tempDevice in deviceType
-                               select new {
-                                   tempDevice.Item1.DeviceId,
-                                   tempDevice.Item1.RegistrationNo,
-                                   tempDevice.Item1.InventoryNo,
-                                   tempDevice.Item1.SerialNo,
-                                   tempDevice.Item1.VerificationDate,
-                                   tempDevice.Item1.TimeToVerification,
-                                   tempDevice.Item1.VerificationResult,
-                                   tempDevice.Item1.ProductionDate,
-                                   tempDevice.Item1.DeviceDesc,
-                                   tempDevice.Item2.TypeName,
-                                   tempDevice.Item2.DeviceName });
-            
-
-            //Sorting 
-            if (!(string.IsNullOrEmpty(sortColumn)) && !string.IsNullOrEmpty(sortColumnDirection))
-            {
-                if (sortColumnDirection == "asc")
-                {
-                    deviceData2 = deviceData2.OrderBy(sortColumn + " ASC");
-                }
-                else
-                {
-                    deviceData2 = deviceData2.OrderBy(sortColumn + " DESC");
-                }
-            }
-            //Total number of rows counts   
-            recordsTotal = deviceData2.Count();
-            int recordsFiltered = recordsTotal;
-
-            //Paging
-            var data = await deviceData2.Skip(skip).Take(pageSize).ToListAsync();
-            
-            //Returning Json Data 
-            return Json(new { draw, recordsFiltered, recordsTotal, data });
-        }
-
-        public async Task<ViewResult> Edit(int deviceId)
-        {
-            ViewBag.Breadcrumb = "Edycja";
             
             Device device = await repository.Devices
                 .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
 
-            
+            if (device == null)
+            {
+                TempData["error"] = $"Nie odnaleziono.";
+                return RedirectToAction("Index");
+            }
+
             // Types value for select option 
             List<SelectListItem> typeList = await TypeList();
             List<SelectListItem> placeList = await PlaceList();
@@ -178,7 +73,6 @@ namespace Measuring_equipment.Controllers
 
             //User name
             ViewBag.userName = userManager.GetUserName(HttpContext.User);
-
 
             //Device picture
             string imgSrc = Url.Content("~/images/no_pic.jpg");
@@ -210,7 +104,9 @@ namespace Measuring_equipment.Controllers
                 PlaceListVm = placeList,
                 DepartmentName = device.Place.Department.DepartmentName,
                 UserListVm = userList,
-                UserId = device.UserId
+                UserId = device.UserId,
+                ValidityPierod = device.Type.ValidityPierod.ToString(),
+                LaboratoryName = device.Type.Laboratory.LaboratoryName
             };
 
             return View(model);
@@ -238,8 +134,8 @@ namespace Measuring_equipment.Controllers
                         CurrentlyInUse = model.CurrentlyInUse,
                         TypeId = model.TypeId,
                         PlaceId = model.PlaceId,
-                        UserId = model.UserId
-                    };
+                        UserId = model.UserId,
+                     };
 
                     repository.SaveDevice(device);
                     TempData["message"] = $"Zapisano {String.Format("{0:D5}",model.RegistrationNo)}.";
@@ -264,11 +160,9 @@ namespace Measuring_equipment.Controllers
         }
 
         
-        public async Task<ViewResult> Create()
+        public async Task<IActionResult> Create()
 
         {
-            ViewBag.Breadcrumb = "Nowe urządzenie";
-            
             //User name
             ViewBag.userName = userManager.GetUserName(HttpContext.User);
             List<SelectListItem> typeList = await TypeList();
@@ -341,6 +235,152 @@ namespace Measuring_equipment.Controllers
             return RedirectToAction("Index");
         }
 
+        // Load data for DataTable (server side proccessing)
+        [HttpPost]
+        public async Task<IActionResult> LoadData()
+        {
+            // DataTable Server side processing
+
+            var draw = HttpContext.Request.Form["draw"].FirstOrDefault();
+
+            // Skip number of Rows count  
+            var start = Request.Form["start"].FirstOrDefault();
+
+            // Paging Length   
+            var length = Request.Form["length"].FirstOrDefault();
+
+            // Sort Column Name  
+            var sortColumn = Request.Form["columns[" + Request.Form["order[0][column]"].FirstOrDefault() + "][name]"].FirstOrDefault();
+
+            // Sort Column Direction (asc, desc)  
+            var sortColumnDirection = Request.Form["order[0][dir]"].FirstOrDefault();
+
+            // Search Value from (Search box)  
+            var searchValue = Request.Form["search[value]"].FirstOrDefault();
+
+            // Paging Size  
+            int pageSize = length != null ? Convert.ToInt32(length) : 0;
+
+            int skip = start != null ? Convert.ToInt32(start) : 0;
+
+            int recordsTotal = 0;
+
+
+            // Getting all Device and Type data  
+            var deviceData = (from tempDevice in repository.DevicesDT
+                              select tempDevice);
+
+            IQueryable<Tuple<Device, Type>> GetDeviceWithType()
+            {
+                var dd = (from tempDevice in deviceData
+                          join tempType in repository.Types on tempDevice.TypeId equals tempType.TypeId
+                          select new Tuple<Device, Type>(tempDevice, tempType));
+                return dd;
+
+            }
+
+            //Search 
+            IQueryable<Tuple<Device, Type>> MatchesKeyword(IQueryable<Tuple<Device, Type>> list, string keyword)
+            {
+                var predicate = PredicateBuilder.New<Tuple<Device, Type>>();
+
+                predicate = predicate.Or(
+                         item => item.Item1.RegistrationNo.ToString().Contains(keyword)
+                         || item.Item1.InventoryNo.Contains(keyword)
+                         || item.Item1.SerialNo.Contains(keyword)
+                         || item.Item1.VerificationDate.ToString().Contains(keyword)
+                         || item.Item1.TimeToVerification.ToString().Contains(keyword)
+                         || item.Item1.VerificationResult.Contains(keyword)
+                         || item.Item1.ProductionDate.ToString().Contains(keyword)
+                         || item.Item1.DeviceDesc.Contains(keyword)
+                         || item.Item2.TypeName.Contains(keyword)
+                         || item.Item2.DeviceName.Contains(keyword)
+
+                );
+
+                return list.AsQueryable().Where(predicate);
+            }
+
+            IQueryable<Tuple<Device, Type>> deviceType = GetDeviceWithType();
+
+            if (!string.IsNullOrEmpty(searchValue))
+            {
+
+                deviceType = MatchesKeyword(deviceType, searchValue);
+            }
+
+            //Choose useful columns
+            var deviceData2 = (from tempDevice in deviceType
+                               select new
+                               {
+                                   tempDevice.Item1.DeviceId,
+                                   tempDevice.Item1.RegistrationNo,
+                                   tempDevice.Item1.InventoryNo,
+                                   tempDevice.Item1.SerialNo,
+                                   tempDevice.Item1.VerificationDate,
+                                   tempDevice.Item1.TimeToVerification,
+                                   tempDevice.Item1.VerificationResult,
+                                   tempDevice.Item1.ProductionDate,
+                                   tempDevice.Item1.DeviceDesc,
+                                   tempDevice.Item2.TypeName,
+                                   tempDevice.Item2.DeviceName
+                               });
+
+
+            //Sorting 
+            if (!(string.IsNullOrEmpty(sortColumn)) && !string.IsNullOrEmpty(sortColumnDirection))
+            {
+                if (sortColumnDirection == "asc")
+                {
+                    deviceData2 = deviceData2.OrderBy(sortColumn + " ASC");
+                }
+                else
+                {
+                    deviceData2 = deviceData2.OrderBy(sortColumn + " DESC");
+                }
+            }
+            //Total number of rows counts   
+            recordsTotal = deviceData2.Count();
+            int recordsFiltered = recordsTotal;
+
+            //Paging
+            var data = await deviceData2.Skip(skip).Take(pageSize).ToListAsync();
+
+            //Return Json Data 
+            return Json(new { draw, recordsFiltered, recordsTotal, data });
+        }
+
+        public async Task<IActionResult> PrintLabel(int deviceId)
+        {
+            Device device = await repository.Devices
+                .FirstOrDefaultAsync(d => d.DeviceId == deviceId);
+            if (device.VerificationDate != null && device.TimeToVerification != null)
+            {
+                AdminEditViewModel model = new AdminEditViewModel
+                {
+                    RegistrationNo = device.RegistrationNo,
+                    VerificationDate = device.VerificationDate,
+                    TimeToVerification = device.TimeToVerification,
+                    VerificationResult = device.VerificationResult
+                };
+                return View(model);
+            }
+            else
+            {
+                TempData["error"] = $"Sprzęt nieużywany lub bez weryfikacji";
+
+                DateTime dataTime = new DateTime(0001, 01, 01); 
+                AdminEditViewModel model = new AdminEditViewModel
+                {
+                    RegistrationNo = device.RegistrationNo,
+                    VerificationDate = dataTime,
+                    TimeToVerification = dataTime,
+                    VerificationResult = device.VerificationResult
+                };
+                return View(model);
+            }
+        }
+
         private async Task<List<SelectListItem>> TypeList()
         {
             return await repository.Types.Select(t => new SelectListItem()
@@ -365,7 +405,7 @@ namespace Measuring_equipment.Controllers
             
             return usersOfRole.Select(t => new SelectListItem()
             {
-                Value = t.Id.ToString(),
+                Value = t.UserName,
                 Text = t.UserName
             }
             ).Distinct().OrderBy(t => t.Text).ToList();
@@ -373,9 +413,6 @@ namespace Measuring_equipment.Controllers
 
         public async Task<IActionResult> GetData(int typeId)
         {
-            
-            Device device = await repository.Devices.FirstOrDefaultAsync(d => d.TypeId == typeId);
-
             Type type = await repository.Types.FirstAsync(t => t.TypeId == typeId);
             
             Type typeresult = new Type()
@@ -395,13 +432,11 @@ namespace Measuring_equipment.Controllers
         public async Task<IActionResult> GetDataProd(int typeId)
         {
             Type type = await repository.Types.FirstAsync(t => t.TypeId == typeId);
-            int? producerId = type.ProducerId;
-            Producer producerSelected = await repository.Producers.FirstAsync(p => p.ProducerId == producerId);
-
+           
             Producer producerresult = new Producer()
             {
-                ProducerId = producerSelected.ProducerId,
-                ProducerName = producerSelected.ProducerName
+                ProducerId = type.Producer.ProducerId,
+                ProducerName = type.Producer.ProducerName
             };
             
             return new JsonResult(producerresult);
@@ -410,13 +445,11 @@ namespace Measuring_equipment.Controllers
         public async Task<IActionResult> GetDataVer(int typeId)
         {
             Type type = await repository.Types.FirstAsync(t => t.TypeId == typeId);
-            int? verificationId = type.VerificationId;
-            Verification verificationSelected = await repository.Verifications.FirstAsync(p => p.VerificationId == verificationId);
-
+            
             Verification verificationresult = new Verification()
             {
-                VerificationId = verificationSelected.VerificationId,
-                VerificationName = verificationSelected.VerificationName
+                VerificationId = type.Verification.VerificationId,
+                VerificationName = type.Verification.VerificationName
             };
             
             return new JsonResult(verificationresult);
@@ -426,16 +459,27 @@ namespace Measuring_equipment.Controllers
         public async Task<IActionResult> GetDataPlace(int placeId)
         {
             Place place = await repository.Places.FirstAsync(t => t.PlaceId == placeId);
-            int? departmentId = place.DepartmentId;
-            Department departmentSelected = await repository.Departments.FirstAsync(p => p.DepartmentId == departmentId);
-
+           
             Department departmentresult = new Department()
             {
-                DepartmentId = departmentSelected.DepartmentId,
-                DepartmentName = departmentSelected.DepartmentName
+                DepartmentId = place.Department.DepartmentId,
+                DepartmentName = place.Department.DepartmentName
             };
 
             return new JsonResult(departmentresult);
+        }
+
+        public async Task<IActionResult> GetDataLab(int typeId)
+        {
+            Type type = await repository.Types.FirstAsync(t => t.TypeId == typeId);
+           
+            Laboratory labresult = new Laboratory()
+            {
+                LaboratoryId = type.Laboratory.LaboratoryId,
+                LaboratoryName = type.Laboratory.LaboratoryName
+            };
+
+            return new JsonResult(labresult);
         }
 
         [HttpGet]
@@ -453,18 +497,10 @@ namespace Measuring_equipment.Controllers
         */
 
 
-        public ViewResult UsersIndex()
-        {
-            ViewBag.Breadcrumb = "Użytkownicy";
-            return View(userManager.Users);
-        }
+        public ViewResult UsersIndex() => View(userManager.Users);
 
-        public ViewResult UsersCreate()
-        {
-            ViewBag.Breadcrumb = "Dodawanie użytkowników";
-            return View();
-        }
-
+        public ViewResult UsersCreate() => View(new UserViewModel.CreateModel { ReturnUrl = HttpContext.Request.Headers["Referer"] });
+        
         [HttpPost]
         public async Task<IActionResult> UsersCreate(UserViewModel.CreateModel model)
         {
@@ -480,7 +516,7 @@ namespace Measuring_equipment.Controllers
                 if (result.Succeeded)
                 {
                     TempData["message"] = $"Dodano {user.NormalizedUserName}.";
-                    return RedirectToAction("UsersIndex");
+                    return Redirect(model.ReturnUrl);
                 }
                 else
                 {
@@ -499,7 +535,8 @@ namespace Measuring_equipment.Controllers
         public async Task<IActionResult> UsersDelete(string id)
         {
             AppUser user = await userManager.FindByIdAsync(id);
-            if (user != null)
+            bool IfUserHaveDevice = await repository.Devices.AnyAsync(d => d.UserId == id);
+            if (user != null && !IfUserHaveDevice)
             {
                 IdentityResult result = await userManager.DeleteAsync(user);
                 if (result.Succeeded)
@@ -515,10 +552,12 @@ namespace Measuring_equipment.Controllers
             else
             {
                 //ModelState.AddModelError("", "Nie znaleziono użytkownika");
-                TempData["error"] = "Nie znaleziono użytkownika";
+                TempData["error"] = "Nie znaleziono użytkownika lub posiada on urządzenia";
             }
             return View("UsersIndex", userManager.Users);
         }
+
+
         private void AddErrorsFromResult(IdentityResult result)
         {
             foreach (IdentityError error in result.Errors)

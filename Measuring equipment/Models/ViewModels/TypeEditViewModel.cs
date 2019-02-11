@@ -31,6 +31,6 @@ namespace Measuring_equipment.Models.ViewModels
         public List<SelectListItem> ProducerListVm { get; set; }
         public List<SelectListItem> LaboratoryListVm { get; set; }
         public List<SelectListItem> VerificationListVm { get; set; }
-        
+        public string ReturnUrl { get; set; }
     }
 }

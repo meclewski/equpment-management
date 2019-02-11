@@ -7,7 +7,7 @@
 
 <form asp-action="Edit" method="post">
     <input type="hidden" asp-for="DeviceId" />
-    <div class=" row">
+     <div class=" row">
         <div class="border col-md-12">
             <div class="form-group ">
                 <label asp-for="RegistrationNo">Numer kalibracji</label>
@@ -48,13 +48,6 @@
                     <div><span asp-validation-for="SerialNo" class="text-danger"></span></div>
                 </div>
                 <div class="form-group col-md-6">
-                    <label asp-for="InventoryNo">Numer inwentarzowy</label>
-                    <input asp-for="InventoryNo" class="form-control" />
-                    <div><span asp-validation-for="InventoryNo" class="text-danger"></span></div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group col-md-6">
                     <label asp-for="ProductionDate">Data produkcji</label>
                     <div><span asp-validation-for="ProductionDate" class="text-danger"></span></div>
                     <div class="input-group date dtp" id="dtp1" data-target-input="nearest">
@@ -64,10 +57,17 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="row">
                 <div class="form-group col-md-6">
                     <label asp-for="CurrentlyInUse">W użytkowaniu</label>
                     <input asp-for="CurrentlyInUse" class="form-control" />
                     <div><span asp-validation-for="CurrentlyInUse" class="text-danger"></span></div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="InventoryNo">Numer inwentarzowy</label>
+                    <input asp-for="InventoryNo" class="form-control" />
+                    <div><span asp-validation-for="InventoryNo" class="text-danger"></span></div>
                 </div>
             </div>
         </div>
@@ -77,7 +77,6 @@
             </div>
         </div>
     </div>
-
     <div class="row">
         <div class="col-md-6 border">
             <div class="row">
@@ -107,16 +106,15 @@
                         </div>
                     </div>
                 </div>
-
             </div>
             <div class="row">
                 <div class="form-group col-md-6">
-                    <label for="Future">Future field</label>
-                    <input id="Future" class="form-control" />
-                </div>
-                <div class="form-group col-md-6">
                     <label for="EngName">Osoba wprowadzająca</label>
                     <input id="EngName" class="form-control" value="@ViewBag.userName" readonly />
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="Future">Future field</label>
+                    <input id="Future" class="form-control" readonly/>
                 </div>
             </div>
             <div class="row">
@@ -127,7 +125,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="border col-md-6">
             <div class="row">
                 <div class="form-group col-md-6">
                     <label asp-for="PlaceId">Miejsce użytkowania</label>
@@ -160,14 +158,30 @@
                     <input id="Future" class="form-control" />
                 </div>
             </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label asp-for="ValidityPierod">Czasokres weryfikacji</label>
+                    <input asp-for="ValidityPierod" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="LaboratoryName">Laboratorium</label>
+                    <input asp-for="LaboratoryName" class="form-control" readonly />
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-12">
+                    <label for="PrintLabel">Drukowanie</label><br />
+                    <a  asp-action="PrintLabel" asp-route-deviceId="@Model.DeviceId" class="btn btn-block btn-secondary" target="_blank">Drukuj Etykietę</a>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row">
         <div class="border col-md-12">
             <div class="form-group">
-                <label asp-for="DeviceDesc">Opis</label>
+                <label asp-for="DeviceDesc">Uwagi</label>
                 <div><span asp-validation-for="DeviceDesc" class="text-danger"></span></div>
-                <input asp-for="DeviceDesc" class="form-control" />
+                <textarea asp-for="DeviceDesc" class="form-control" rows="3"></textarea>
             </div>
         </div>
     </div>
