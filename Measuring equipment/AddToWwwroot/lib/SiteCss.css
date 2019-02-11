@@ -1,0 +1,23 @@
+﻿@media screen and (max-width: 767px) {
+    li.paginate_button.previous {
+        display: inline;
+    }
+
+    li.paginate_button.next {
+        display: inline;
+    }
+
+    li.paginate_button {
+        display: none;
+    }
+
+    
+}
+
+table.dataTable tbody th, table.dataTable tbody td {
+    padding: 4px 10px; /* e.g. change 4x to 8px here */
+}
+
+.img-max {
+    max-width: 330px
+}
