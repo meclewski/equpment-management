@@ -14,6 +14,8 @@ using Newtonsoft.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Formatters.Json;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using System.Net.Mail;
+using System.Net;
 
 namespace Measuring_equipment
 {
@@ -26,6 +28,20 @@ namespace Measuring_equipment
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<SmtpClient>((serviceProvider) =>
+            {
+                var config = serviceProvider.GetRequiredService<IConfiguration>();
+                return new SmtpClient()
+                {
+                    Host = config.GetValue<String>("Email:Smtp:Host"),
+                    Port = config.GetValue<int>("Email:Smtp:Port"),
+                    Credentials = new NetworkCredential(
+                            config.GetValue<String>("Email:Smtp:Username"),
+                            config.GetValue<String>("Email:Smtp:Password")
+                        )
+                };
+            });
+
             services.AddDbContext<ApplicationDbContext>(options => 
                 options.UseSqlServer(Configuration["Data:MeasuringDevices:ConnectionString"]));
             services.AddDbContext<AppIdentityDbContext>(options =>

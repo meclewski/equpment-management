@@ -148,6 +148,25 @@ $(document).ready(function () {
     });
 });
 
+$(document).ready(function () {
+    $("#dt_rest").DataTable({
+        "responsive": true,
+        "language": {
+            "lengthMenu": "Wyświetl _MENU_ rekordów na stronę",
+            "zeroRecords": "Przepraszamy, nic nie znaleziono",
+            "info": "Wyświetlana strona _PAGE_ z _PAGES_",
+            "infoEmpty": "Brak dostępnych rekordów",
+            "infoFiltered": "(Odfiltrowane z _MAX_ wszystkich rekordów)",
+            "search": "Wyszukaj",
+            "paginate": {
+                "previous": "Poprzednia",
+                "next": "Następna"
+            }
+        }
+
+    });
+});
+
 //Data loading by ajax
 
 $(document).ready(function () {
@@ -247,7 +266,8 @@ $(document).ready(function () {
 
 $(document).ready(function () {
     $('.dtp').datetimepicker({
-        format: 'YYYY-MM-DD'
+        format: 'YYYY-MM-DD',
+        ignoreReadonly: true
     });
 
 

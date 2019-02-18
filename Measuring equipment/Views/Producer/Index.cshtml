@@ -5,12 +5,7 @@
     Layout = "_AdminLayout";
 }
 
-<h2>Index</h2>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<table class="table" id="dt_rest" width="100%">
     <thead>
         <tr>
             <th>
@@ -40,3 +35,7 @@
 }
     </tbody>
 </table>
+<br />
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</p>

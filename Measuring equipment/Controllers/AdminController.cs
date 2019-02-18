@@ -13,7 +13,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-
+using System.Net.Mail;
+using System.Net;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Measuring_equipment.Controllers
 {
@@ -27,19 +29,38 @@ namespace Measuring_equipment.Controllers
         private IUserValidator<AppUser> userValidator;
         private IPasswordValidator<AppUser> passwordValidator;
         private IPasswordHasher<AppUser> passwordHasher;
-        
+        private readonly SmtpClient smtpClt;
 
         public AdminController(IDeviceRepository repo,
             UserManager<AppUser> userMgr,
             IUserValidator<AppUser> userValid,
             IPasswordValidator<AppUser> passValid,
-            IPasswordHasher<AppUser> passwordHash)
+            IPasswordHasher<AppUser> passwordHash,
+            SmtpClient smtpClient)
         {
             repository = repo;
             userManager = userMgr;
             userValidator = userValid;
             passwordValidator = passValid;
             passwordHasher = passwordHash;
+            smtpClt = smtpClient;
+        }
+
+        
+        [HttpPost]
+        public async Task<IActionResult> PostEmail()
+        {
+            using (var smtpClient = HttpContext.RequestServices.GetRequiredService<SmtpClient>())
+            {
+                await smtpClient.SendMailAsync(new MailMessage(
+                       from: "l.meclewski@gmail.com",
+                       to: "lukasz.meclewski@tpv-tech.com",
+                       subject: "Test message subject",
+                       body: "Test message body"
+                       ));
+
+                return Ok("OK");
+            }
         }
 
         public ViewResult Index() => View();

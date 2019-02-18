@@ -51,7 +51,7 @@
                     <label asp-for="ProductionDate">Data produkcji</label>
                     <div><span asp-validation-for="ProductionDate" class="text-danger"></span></div>
                     <div class="input-group date dtp" id="dtp1" data-target-input="nearest">
-                        <input asp-for="ProductionDate" type="text" class="form-control datetimepicker-input" data-target="#dtp1" />
+                        <input asp-for="ProductionDate" type="text" class="form-control datetimepicker-input" data-target="#dtp1" readonly />
                         <div class="input-group-append" data-target="#dtp1" data-toggle="datetimepicker">
                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
@@ -90,9 +90,9 @@
                     <label asp-for="VerificationDate">Data weryfikacji</label>
                     <div><span asp-validation-for="VerificationDate" class="text-danger"></span></div>
                     <div class="input-group date dtp ver" id="dtp3" data-target-input="nearest">
-                        <input asp-for="VerificationDate" type="text" class="form-control datetimepicker-input" data-target="#dtp3" />
-                        <div id="dupa" class="input-group-append" data-target="#dtp3" data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        <input asp-for="VerificationDate" type="text" class="form-control datetimepicker-input" data-target="#dtp3" readonly  />
+                        <div  class="input-group-append" data-target="#dtp3" data-toggle="datetimepicker">
+                            <div class="input-group-text" ><i class="fa fa-calendar"></i></div>
                         </div>
                     </div>
                 </div>
@@ -101,9 +101,7 @@
                     <div><span asp-validation-for="TimeToVerification" class="text-danger"></span></div>
                     <div class="input-group date dtp" id="dtp2" data-target-input="nearest">
                         <input asp-for="TimeToVerification" type="text" class="form-control datetimepicker-input" data-target="#dtp2" readonly />
-                        <div class="input-group-append" data-target="#dtp2" data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -114,7 +112,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label for="Future">Future field</label>
-                    <input id="Future" class="form-control" readonly/>
+                    <input id="Future" class="form-control" />
                 </div>
             </div>
             <div class="row">
@@ -149,13 +147,13 @@
                         <select class="form-control" asp-for="UserId" asp-items="Model.UserListVm">
                             <option disabled selected value="">Wybierz osobę</option>
                         </select>
-                        <a asp-controller="Admin" asp-action="UsersCreate" class="btn btn-secondary">Dodaj</a>
+                        <a asp-controller="Admin" asp-action="UsersCreate" class="btn btn-block btn-secondary">Dodaj</a>
                     </div>
                     <div><span asp-validation-for="UserId" class="text-danger"></span></div>
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="Future">Future field</label>
-                    <input id="Future" class="form-control" />
+                    <label for="PrintLabel">Powiadomienie</label><br />
+                    <button class="btn btn-secondary" asp-action="PostEmail" asp-controller="Admin">Wyślij emaila</button>
                 </div>
             </div>
             <div class="row">

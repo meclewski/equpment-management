@@ -5,12 +5,7 @@
     Layout = "_AdminLayout";
 }
 
-<h2>Index</h2>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<table class="table" id="dt_rest" width="100%">
     <thead>
         <tr>
             <th>
@@ -23,20 +18,25 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.VerificationName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.VerificationDesc)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.VerificationId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.VerificationId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.VerificationId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VerificationName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VerificationDesc)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.VerificationId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.VerificationId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.VerificationId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+<br />
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</p>

@@ -67,13 +67,19 @@
         <ul class="sidebar navbar-nav toggled">
             <li class="nav-item">
                 <a class="nav-link" role="button" asp-action="Index" asp-controller="Admin" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-fw fa-table"></i>
+                    <i class="fas fa-fw fa-wrench"></i>
                     <span>Urządzenia</span>
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" role="button" asp-action="List" asp-controller="Admin" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-fw fa-wrench"></i>
+                    <span>30 dni</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" role="button" asp-action="Index" asp-controller="Type" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-fw fa-table"></i>
+                    <i class="fas fa-fw fa-wrench"></i>
                     <span>Typy</span>
                 </a>
             </li>
@@ -86,18 +92,16 @@
             <li class="dropdown-divider"></li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-fw fa-wrench"></i>
+                    <i class="fas fa-fw fa-table"></i>
                     <span>Tabele</span>
                 </a>
                 <div class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <h6 class="dropdown-header">Login Screens:</h6>
-                    <a class="dropdown-item" href="login.html">Login</a>
-                    <a class="dropdown-item" href="register.html">Register</a>
-                    <a class="dropdown-item" href="forgot-password.html">Forgot Password</a>
+                    <a class="dropdown-item" asp-action="Index" asp-controller="Place">Miejsca</a>
+                    <a class="dropdown-item" asp-action="Index" asp-controller="Department">Działy</a>
                     <div class="dropdown-divider"></div>
-                    <h6 class="dropdown-header">Other Pages:</h6>
-                    <a class="dropdown-item" href="404.html">404 Page</a>
-                    <a class="dropdown-item" href="blank.html">Blank Page</a>
+                    <a class="dropdown-item" asp-action="Index" asp-controller="Laboratory">Laboratoria</a>
+                    <a class="dropdown-item" asp-action="Index" asp-controller="Producer">Producenci</a>
+                    <a class="dropdown-item" asp-action="Index" asp-controller="Verification">Weryfikacje</a>
                 </div>
             </li>
         </ul>
