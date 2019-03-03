@@ -24,7 +24,7 @@ namespace Measuring_equipment.Controllers
     {
         private ITypeRepository repository;
         private readonly UserManager<AppUser> userManager;
-        public TypeController(ITypeRepository repo, UserManager<AppUser> userMgr, IHostingEnvironment e)
+        public TypeController(ITypeRepository repo, UserManager<AppUser> userMgr)
         {
             repository = repo;
             userManager = userMgr;
@@ -88,7 +88,7 @@ namespace Measuring_equipment.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(TypeEditViewModel model)
+        public async Task<IActionResult> Edit([Bind("TypeId,TypeName,DeviceName,ValidityPierod,Price,Image,TypeDesc,ProducerId,LaboratoryId,VerificationId")] TypeEditViewModel model)
         {
             if (ModelState.IsValid)
                 try
@@ -163,7 +163,7 @@ namespace Measuring_equipment.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(TypeEditViewModel model)
+        public async Task<IActionResult> Create([Bind("TypeId,TypeName,DeviceName,ValidityPierod,Price,Image,TypeDesc,ProducerId,LaboratoryId,VerificationId,ReturnUrl")] TypeEditViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -318,31 +318,33 @@ namespace Measuring_equipment.Controllers
             return Json(new { draw, recordsFiltered, recordsTotal, data });
         }
 
+        
+
         private async Task<List<SelectListItem>> ProducerList()
         {
-            return await repository.Types.Select(t => new SelectListItem()
+            return await repository.Producers.Select(t => new SelectListItem()
             {
-                Value = t.Producer.ProducerId.ToString(),
-                Text = t.Producer.ProducerName
-            }).Distinct().ToListAsync();
+                Value = t.ProducerId.ToString(),
+                Text = t.ProducerName
+            }).Distinct().OrderBy(t=>t.Text).ToListAsync();
         }
 
         private async Task<List<SelectListItem>> LaboratoryList()
         {
-            return await repository.Types.Select(t => new SelectListItem()
+            return await repository.Laboratories.Select(t => new SelectListItem()
             {
-                Value = t.Laboratory.LaboratoryId.ToString(),
-                Text = t.Laboratory.LaboratoryName
-            }).Distinct().ToListAsync();
+                Value = t.LaboratoryId.ToString(),
+                Text = t.LaboratoryName
+            }).Distinct().OrderBy(t => t.Text).ToListAsync();
         }
 
         private async Task<List<SelectListItem>> VerificationList()
         {
-            return await repository.Types.Select(t => new SelectListItem()
+            return await repository.Verifications.Select(t => new SelectListItem()
             {
-                Value = t.Verification.VerificationId.ToString(),
-                Text = t.Verification.VerificationName
-            }).Distinct().ToListAsync();
+                Value = t.VerificationId.ToString(),
+                Text = t.VerificationName
+            }).Distinct().OrderBy(t => t.Text).ToListAsync();
         }
     }
 }

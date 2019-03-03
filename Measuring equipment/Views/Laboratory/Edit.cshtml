@@ -1,42 +1,42 @@
 ﻿@model Measuring_equipment.Models.Laboratory
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edycja laboratorium";
     Layout = "_AdminLayout";
 }
 
-<h2>Edit</h2>
 
-<h4>Laboratory</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+<form asp-action="Edit">
+    <div class="row">
+        <div class="col-md-6">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="LaboratoryId" />
             <div class="form-group">
-                <label asp-for="LaboratoryName" class="control-label"></label>
+                <label asp-for="LaboratoryName" class="control-label">Nazwa</label>
                 <input asp-for="LaboratoryName" class="form-control" />
                 <span asp-validation-for="LaboratoryName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Accreditation" class="control-label"></label>
+                <label asp-for="Accreditation" class="control-label">Akredytacja</label>
                 <input asp-for="Accreditation" class="form-control" />
                 <span asp-validation-for="Accreditation" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="LaboratoryDesc" class="control-label"></label>
+                <label asp-for="LaboratoryDesc" class="control-label">Opis</label>
                 <input asp-for="LaboratoryDesc" class="form-control" />
                 <span asp-validation-for="LaboratoryDesc" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+    <br />
+    <span style="float:left;">
+        <button class="btn btn-primary" type="submit">Zapisz</button>
+        <a class="btn btn-secondary" asp-controller="Laboratory" asp-action="Index">Anuluj</a>
+    </span>
+</form>
+<form asp-action="Delete" method="get" asp-route-id="@Model.LaboratoryId">
+    <span style="float:left; margin-left:4px">
+        <input type="hidden" asp-for="LaboratoryId" />
+        <button type="submit" class="btn btn-danger">Usuń</button>
+    </span>
+</form>

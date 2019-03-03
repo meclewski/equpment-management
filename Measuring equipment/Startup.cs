@@ -47,7 +47,7 @@ namespace Measuring_equipment
             services.AddDbContext<AppIdentityDbContext>(options =>
                 options.UseSqlServer(Configuration["Data:MeasuringIdentity:ConnectionString"]));
             services.AddIdentity<AppUser, IdentityRole>(opts => {
-                opts.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+/ ";
+                opts.User.AllowedUserNameCharacters = "aąbcćdeęfghijklłmnoópqrsśtuvwxyzżźAĄBCĆDEĘFGHIJKLŁMNOÓPQRSŚTUVWXYZŻŹ0123456789-._@+/ ";
             })
                 .AddEntityFrameworkStores<AppIdentityDbContext>()
                 .AddDefaultTokenProviders();
@@ -73,6 +73,7 @@ namespace Measuring_equipment
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
                 app.UseStatusCodePages();
                 app.UseStaticFiles();
                 app.UseAuthentication();
@@ -89,7 +90,7 @@ namespace Measuring_equipment
                 });
                 //SeedDataType.EnsurePopulated(app);
                 //SeedData.EnsurePopulated(app);
-            }
+            
         }
     }
 }

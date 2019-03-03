@@ -18,5 +18,5 @@
         <input asp-for="Password" class="form-control" />
     </div>
     <button type="submit" class="btn btn-primary">Utwórz</button>
-    <a asp-action="UsersIndex" class="btn btn-secondary">Anuluj</a>
+    <a href="@Model.ReturnUrl" class="btn btn-secondary">Anuluj</a>
 </form>

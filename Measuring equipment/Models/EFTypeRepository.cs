@@ -20,8 +20,9 @@ namespace Measuring_equipment.Models
             .Include(l => l.Laboratory);
 
         public IQueryable<Type> TypesDT => context.Types;
-
-        
+        public IQueryable<Producer> Producers => context.Producers;
+        public IQueryable<Laboratory> Laboratories => context.Laboratories;
+        public IQueryable<Verification> Verifications => context.Verification;
 
         public void SaveType(Type type)
         {

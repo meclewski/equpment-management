@@ -1,20 +1,16 @@
 ﻿@model IEnumerable<Measuring_equipment.Models.Producer>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Producenci";
     Layout = "_AdminLayout";
 }
 
-<table class="table" id="dt_rest" width="100%">
+<table class="table table-bordered table-hover" id="dt_rest" width="100%">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ProducerName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProducerDesc)
-            </th>
-            <th></th>
+            <th>Nazwa</th>
+            <th>Opis</th>
+            <th>Edycja</th>
         </tr>
     </thead>
     <tbody>
@@ -27,15 +23,12 @@
                 @Html.DisplayFor(modelItem => item.ProducerDesc)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ProducerId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ProducerId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ProducerId">Delete</a>
-            </td>
+                <a class="btn btn-sm btn-info" asp-action="Edit" asp-route-id="@item.ProducerId">Edycja</a>
         </tr>
 }
     </tbody>
 </table>
 <br />
 <p>
-    <a class="btn btn-primary" asp-action="Create">Create New</a>
+    <a class="btn btn-primary" asp-action="Create">Dodaj producenta</a>
 </p>

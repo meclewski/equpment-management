@@ -1,42 +1,45 @@
 ﻿@model Measuring_equipment.Models.Place
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edycja miejsca";
     Layout = "_AdminLayout";
 }
 
-<h2>Edit</h2>
-
-<h4>Place</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="PlaceId" />
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="PlaceId" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row">
+        <div class="col-md-6">
             <div class="form-group">
-                <label asp-for="PlaceName" class="control-label"></label>
+                <label asp-for="PlaceName" class="control-label">Nazwa</label>
                 <input asp-for="PlaceName" class="form-control" />
                 <span asp-validation-for="PlaceName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PlaceDesc" class="control-label"></label>
+                <label asp-for="PlaceDesc" class="control-label">Opis</label>
                 <input asp-for="PlaceDesc" class="form-control" />
                 <span asp-validation-for="PlaceDesc" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DepartmentId" class="control-label"></label>
+                <label asp-for="DepartmentId" class="control-label">Dział</label>
                 <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
                 <span asp-validation-for="DepartmentId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
+    <br />
+    <span style="float:left;">
+        <button class="btn btn-primary" type="submit">Zapisz</button>
+        <a class="btn btn-secondary" asp-controller="Place" asp-action="Index">Anuluj</a>  
+    </span>
+</form>
+    
+<form asp-action="Delete" method="get" asp-route-placeId="@Model.PlaceId">
+    <span style="float:left; margin-left:4px">
+        <input type="hidden" asp-for="PlaceId" />
+        <button type="submit" class="btn btn-danger">Usuń</button>
+        
+    </span>
+</form>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 

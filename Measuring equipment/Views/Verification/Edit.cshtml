@@ -1,37 +1,39 @@
 ﻿@model Measuring_equipment.Models.Verification
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edycja rodzaju weryfikacji";
     Layout = "_AdminLayout";
 }
 
-<h2>Edit</h2>
-
-<h4>Verification</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="VerificationId" />
+<form asp-action="Edit" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="VerificationId" />
+    <div class="row">
+        <div class="col-md-6">
             <div class="form-group">
-                <label asp-for="VerificationName" class="control-label"></label>
+                <label asp-for="VerificationName" class="control-label">Nazwa</label>
                 <input asp-for="VerificationName" class="form-control" />
                 <span asp-validation-for="VerificationName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="VerificationDesc" class="control-label"></label>
+                <label asp-for="VerificationDesc" class="control-label">Opis</label>
                 <input asp-for="VerificationDesc" class="form-control" />
                 <span asp-validation-for="VerificationDesc" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
+    <br />
+    <span style="float:left;">
+        <button class="btn btn-primary" type="submit">Zapisz</button>
+        <a class="btn btn-secondary" asp-controller="Verification" asp-action="Index">Anuluj</a>
+    </span>
+</form>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<form asp-action="Delete" method="get" asp-route-id="@Model.VerificationId">
+    <span style="float:left; margin-left:4px">
+        <input type="hidden" asp-for="VerificationId" />
+        <button type="submit" class="btn btn-danger">Usuń</button>
+
+    </span>
+</form>
 

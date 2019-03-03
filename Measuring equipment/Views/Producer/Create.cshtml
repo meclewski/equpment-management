@@ -1,36 +1,31 @@
 ﻿@model Measuring_equipment.Models.Producer
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Dodawanie producenta";
     Layout = "_AdminLayout";
 }
 
-<h2>Create</h2>
-
-<h4>Producer</h4>
-<hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="ProducerName" class="control-label"></label>
+                <label asp-for="ProducerName" class="control-label">Nazwa</label>
                 <input asp-for="ProducerName" class="form-control" />
                 <span asp-validation-for="ProducerName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ProducerDesc" class="control-label"></label>
+                <label asp-for="ProducerDesc" class="control-label">Opis</label>
                 <input asp-for="ProducerDesc" class="form-control" />
                 <span asp-validation-for="ProducerDesc" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
+            <span style="float:left;">
+                <button class="btn btn-primary" type="submit">Zapisz</button>
+                <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+            </span>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
 

@@ -73,7 +73,7 @@
         </div>
         <div class="col-md-6 border">
             <div class="img-max mx-auto p-2">
-                <img class="img-fluid mx-auto d-block" src="@Model.ImageStr" alt="">
+                <img id="Image" class="img-fluid mx-auto d-block" src="@Model.ImageStr" alt="">
             </div>
         </div>
     </div>
@@ -108,7 +108,7 @@
             <div class="row">
                 <div class="form-group col-md-6">
                     <label for="EngName">Osoba wprowadzająca</label>
-                    <input id="EngName" class="form-control" value="@ViewBag.userName" readonly />
+                    <input id="EngName" class="form-control" value="@User.Identity.Name" readonly />
                 </div>
                 <div class="form-group col-md-6">
                     <label for="Future">Future field</label>
@@ -147,13 +147,13 @@
                         <select class="form-control" asp-for="UserId" asp-items="Model.UserListVm">
                             <option disabled selected value="">Wybierz osobę</option>
                         </select>
-                        <a asp-controller="Admin" asp-action="UsersCreate" class="btn btn-block btn-secondary">Dodaj</a>
+                        <a asp-controller="Admin" asp-action="UsersCreate" class="btn btn-secondary">Dodaj</a>
                     </div>
                     <div><span asp-validation-for="UserId" class="text-danger"></span></div>
                 </div>
                 <div class="form-group col-md-6">
                     <label for="PrintLabel">Powiadomienie</label><br />
-                    <button class="btn btn-secondary" asp-action="PostEmail" asp-controller="Admin">Wyślij emaila</button>
+                    <button class="btn btn-block btn-secondary" asp-action="PostEmail" asp-controller="Admin">Wyślij emaila</button>
                 </div>
             </div>
             <div class="row">

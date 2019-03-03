@@ -1,23 +1,17 @@
 ﻿@model IEnumerable<Measuring_equipment.Models.Place>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Miejsca";
     Layout = "_AdminLayout";
 }
 
-<table class="table" id="dt_rest" width="100%">
+<table class="table table-bordered table-hover" id="dt_rest" width="100%">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.PlaceName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PlaceDesc)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Department)
-            </th>
-            <th></th>
+            <th>Nazwa</th>
+            <th>Opis</th>
+            <th>Dział</th>
+            <th>Edycja</th>
         </tr>
     </thead>
     <tbody>
@@ -33,9 +27,8 @@
                 @Html.DisplayFor(modelItem => item.Department.DepartmentId)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.PlaceId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.PlaceId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.PlaceId">Delete</a>
+                <a class="btn btn-sm btn-info" asp-action="Edit" asp-route-id="@item.PlaceId">Edycja</a>
+                
             </td>
         </tr>
 }
@@ -43,5 +36,5 @@
 </table>
 <br />
 <p>
-    <a class="btn btn-primary" asp-action="Create">Create New</a>
+    <a class="btn btn-primary" asp-action="Create">Dodaj miejsce</a>
 </p>

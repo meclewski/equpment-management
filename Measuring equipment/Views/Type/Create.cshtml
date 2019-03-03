@@ -34,13 +34,13 @@
     </div>
     <div class=" row">
         <div class="form-group col-md-6">
-            <label asp-for="Image" class="control-label">Zdjęcie</label>
+            <label asp-for="Image" class="control-label">Zdjęcie</label><br />
             <input type="file" name="files" asp-for="Image" />
             <span asp-validation-for="Image" class="text-danger"></span>
         </div>
         <div class="form-group col-md-6">
             <div class="img-max mx-auto p-2">
-                <img class="img-fluid mx-auto d-block" src="@Model.ImageStr" alt="">
+                <img id="ImageDisp" class="img-fluid mx-auto d-block" src="@Model.ImageStr" alt="">
             </div>
         </div>
     </div>
@@ -82,14 +82,9 @@
     <br />
     <span style="float:left;">
         <button class="btn btn-primary" type="submit">Zapisz</button>
-        <a asp-controller="Type" asp-action="Index" class="btn btn-secondary">Anuluj</a>
+        <a href="@Model.ReturnUrl" class="btn btn-secondary">Anuluj</a>
     </span>
 </form>
 
 
-<form asp-action="Delete" method="post">
-    <span style="float:left; margin-left:4px">
-        <input type="hidden" asp-for="TypeId" />
-        <button type="submit" class="btn btn-danger">Usuń</button>
-    </span>
-</form>
+

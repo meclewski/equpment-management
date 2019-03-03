@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Measuring_equipment.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Measuring_equipment.Controllers
 {
+    [Authorize(Roles = "Administratorzy")]
     public class DepartmentController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,39 +20,10 @@ namespace Measuring_equipment.Controllers
             _context = context;
         }
 
-        // GET: Department
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Departments.ToListAsync());
-        }
+        public async Task<IActionResult> Index() => View(await _context.Departments.ToListAsync());
 
-        // GET: Department/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var department = await _context.Departments
-                .FirstOrDefaultAsync(m => m.DepartmentId == id);
-            if (department == null)
-            {
-                return NotFound();
-            }
-
-            return View(department);
-        }
-
-        // GET: Department/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Department/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        public IActionResult Create() => View();
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("DepartmentId,DepartmentName,DepartmentDesc")] Department department)
@@ -64,7 +37,6 @@ namespace Measuring_equipment.Controllers
             return View(department);
         }
 
-        // GET: Department/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -80,18 +52,11 @@ namespace Measuring_equipment.Controllers
             return View(department);
         }
 
-        // POST: Department/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("DepartmentId,DepartmentName,DepartmentDesc")] Department department)
         {
-            if (id != department.DepartmentId)
-            {
-                return NotFound();
-            }
-
+            
             if (ModelState.IsValid)
             {
                 try
@@ -116,15 +81,15 @@ namespace Measuring_equipment.Controllers
         }
 
         // GET: Department/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? departmentId)
         {
-            if (id == null)
+            if (departmentId == null)
             {
                 return NotFound();
             }
 
             var department = await _context.Departments
-                .FirstOrDefaultAsync(m => m.DepartmentId == id);
+                .FirstOrDefaultAsync(m => m.DepartmentId == departmentId);
             if (department == null)
             {
                 return NotFound();
@@ -136,11 +101,18 @@ namespace Measuring_equipment.Controllers
         // POST: Department/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int departmentId)
         {
-            var department = await _context.Departments.FindAsync(id);
-            _context.Departments.Remove(department);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var department = await _context.Departments.FindAsync(departmentId);
+                _context.Departments.Remove(department);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                TempData["error"] = e.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
 

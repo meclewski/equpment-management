@@ -1,25 +1,22 @@
 ﻿@model Measuring_equipment.Models.Department
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Usuwanie działu";
     Layout = "_AdminLayout";
 }
 
-<h2>Delete</h2>
-
-<h3>Are you sure you want to delete this?</h3>
+<h3>Na pewno chcesz usunąć tą pozycję?</h3>
+<br />
 <div>
-    <h4>Department</h4>
-    <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.DepartmentName)
+            Nazwa
         </dt>
         <dd>
             @Html.DisplayFor(model => model.DepartmentName)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.DepartmentDesc)
+            Opis
         </dt>
         <dd>
             @Html.DisplayFor(model => model.DepartmentDesc)
@@ -28,7 +25,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="DepartmentId" />
-        <input type="submit" value="Delete" class="btn btn-default" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Usuń" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-primary">Anuluj</a>
     </form>
 </div>

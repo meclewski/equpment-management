@@ -42,6 +42,7 @@ namespace Measuring_equipment.Models
                 device.TimeToVerification = dt.AddMonths(vp).AddDays(-1);
             }
             
+            
             if (device.DeviceId == 0)
             {
                 context.Devices.Add(device);

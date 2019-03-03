@@ -46,25 +46,11 @@ namespace Measuring_equipment.Controllers
             smtpClt = smtpClient;
         }
 
-        
-        [HttpPost]
-        public async Task<IActionResult> PostEmail()
+        public ViewResult Index()
         {
-            using (var smtpClient = HttpContext.RequestServices.GetRequiredService<SmtpClient>())
-            {
-                await smtpClient.SendMailAsync(new MailMessage(
-                       from: "l.meclewski@gmail.com",
-                       to: "lukasz.meclewski@tpv-tech.com",
-                       subject: "Test message subject",
-                       body: "Test message body"
-                       ));
-
-                return Ok("OK");
-            }
+            ViewBag.userName = userManager.GetUserName(HttpContext.User);
+            return View();
         }
-
-        public ViewResult Index() => View();
-
         public ViewResult List() => View(repository.Devices
             .Where(d => d.CurrentlyInUse == true && d.TimeToVerification < DateTime.Today.AddMonths(1))
             .OrderBy(d => d.TimeToVerification)
@@ -92,15 +78,12 @@ namespace Measuring_equipment.Controllers
             List<SelectListItem> placeList = await PlaceList();
             List<SelectListItem> userList = await UserList();
 
-            //User name
-            ViewBag.userName = userManager.GetUserName(HttpContext.User);
-
             //Device picture
             string imgSrc = Url.Content("~/images/no_pic.jpg");
             if (device.Type.Image != null)
             {
                 var base64 = Convert.ToBase64String(device.Type.Image);
-                imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+                imgSrc = string.Format("data:image/gif;base64,{0}", base64);
             }
 
             AdminEditViewModel model = new AdminEditViewModel
@@ -135,7 +118,7 @@ namespace Measuring_equipment.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(AdminEditViewModel model)
+        public async Task<IActionResult> Edit([Bind("DeviceId,RegistrationNo,InventoryNo,SerialNo,VerificationDate,TimeToVerification,VerificationResult,ProductionDate,DeviceDesc,CurrentlyInUse,TypeId,PlaceId,UserId")] AdminEditViewModel model)
         {
             
             if (ModelState.IsValid)
@@ -172,10 +155,6 @@ namespace Measuring_equipment.Controllers
             {
                 
                 TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
-                
-                //User name
-                ViewBag.userName = userManager.GetUserName(HttpContext.User);
-
                 return await Edit(model.DeviceId);
             }
         }
@@ -184,8 +163,6 @@ namespace Measuring_equipment.Controllers
         public async Task<IActionResult> Create()
 
         {
-            //User name
-            ViewBag.userName = userManager.GetUserName(HttpContext.User);
             List<SelectListItem> typeList = await TypeList();
             List<SelectListItem> placeList = await PlaceList();
             List<SelectListItem> userList = await UserList();
@@ -199,7 +176,7 @@ namespace Measuring_equipment.Controllers
         }   
 
         [HttpPost]
-        public async Task<IActionResult> Create (AdminEditViewModel model)
+        public async Task<IActionResult> Create ([Bind("RegistrationNo,InventoryNo,SerialNo,VerificationDate,TimeToVerification,VerificationResult,ProductionDate,DeviceDesc,CurrentlyInUse,TypeId,PlaceId,UserId")] AdminEditViewModel model)
         {
 
             if (ModelState.IsValid)
@@ -237,10 +214,6 @@ namespace Measuring_equipment.Controllers
             {
 
                 TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
-
-                //User name
-                ViewBag.userName = userManager.GetUserName(HttpContext.User);
-
                 return await Create();
             }
         }
@@ -252,6 +225,10 @@ namespace Measuring_equipment.Controllers
             if (deletedDevice != null)
             {
                 TempData["message"] = $"Usunięto {deletedDevice.InventoryNo}.";
+            }
+            else
+            {
+                TempData["error"] = $"Nie znaleziono";
             }
             return RedirectToAction("Index");
         }
@@ -444,16 +421,18 @@ namespace Measuring_equipment.Controllers
                 TypeDesc = type.TypeDesc,
                 ValidityPierod = type.ValidityPierod,
                 Price = type.Price,
-                ProducerId = type.ProducerId
+                ProducerId = type.ProducerId,
+                Image = type.Image
+                
             };
-            
-            return new JsonResult(typeresult);
+
+            return  new JsonResult(typeresult);
         }
 
         public async Task<IActionResult> GetDataProd(int typeId)
         {
             Type type = await repository.Types.FirstAsync(t => t.TypeId == typeId);
-           
+            
             Producer producerresult = new Producer()
             {
                 ProducerId = type.Producer.ProducerId,
@@ -508,6 +487,22 @@ namespace Measuring_equipment.Controllers
         {
             IQueryable<Device> All = repository.Devices.OrderBy(d => d.DeviceId);
             return new JsonResult(All);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostEmail()
+        {
+            using (var smtpClient = HttpContext.RequestServices.GetRequiredService<SmtpClient>())
+            {
+                await smtpClient.SendMailAsync(new MailMessage(
+                       from: "l.meclewski@gmail.com",
+                       to: "lukasz.meclewski@tpv-tech.com",
+                       subject: "Test message subject",
+                       body: "Test message body"
+                       ));
+
+                return Ok("OK");
+            }
         }
 
 

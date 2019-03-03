@@ -8,9 +8,11 @@ namespace Measuring_equipment.Models.ViewModels
     public class TypeEditViewModel
     {
         public int TypeId { get; set; }
+        
         [Required(ErrorMessage = "Proszę podać nazwę typu.")]
         public string TypeName { get; set; }
         [Required(ErrorMessage = "Proszę podać nazwę urządzenia.")]
+        [StringLength(100, ErrorMessage = "Nazwa może zawierać max. 100 znaków. ")]
         public string DeviceName { get; set; }
         [Required(ErrorMessage = "Proszę podać czasokres wzorcowania.")]
         public int ValidityPierod { get; set; }

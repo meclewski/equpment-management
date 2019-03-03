@@ -1,20 +1,20 @@
 ﻿@model IEnumerable<Measuring_equipment.Models.Department>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Działy";
     Layout = "_AdminLayout";
 }
 
-<table class="table" id="dt_rest" width="100%">
+<table class="table table-bordered table-hover" id="dt_rest" width="100%">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.DepartmentName)
+                Nazwa
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DepartmentDesc)
+                Opis
             </th>
-            <th>Akcje</th>
+            <th>Edycja</th>
         </tr>
     </thead>
     <tbody>
@@ -27,9 +27,7 @@
                 @Html.DisplayFor(modelItem => item.DepartmentDesc)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.DepartmentId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.DepartmentId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.DepartmentId">Delete</a>
+                <a class="btn btn-sm btn-info" asp-action="Edit" asp-route-id="@item.DepartmentId">Edycja</a> 
             </td>
         </tr>
 }
@@ -37,5 +35,5 @@
 </table>
 <br />
 <p>
-    <a class="btn btn-primary" asp-action="Create">Create New</a>
+    <a class="btn btn-primary" asp-action="Create">Dodaj dział</a>
 </p>

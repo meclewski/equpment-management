@@ -18,39 +18,10 @@ namespace Measuring_equipment.Controllers
             _context = context;
         }
 
-        // GET: Verification
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Verification.ToListAsync());
-        }
+        public async Task<IActionResult> Index() => View(await _context.Verification.ToListAsync());
 
-        // GET: Verification/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var verification = await _context.Verification
-                .FirstOrDefaultAsync(m => m.VerificationId == id);
-            if (verification == null)
-            {
-                return NotFound();
-            }
-
-            return View(verification);
-        }
-
-        // GET: Verification/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Verification/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        public IActionResult Create() => View();
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("VerificationId,VerificationName,VerificationDesc")] Verification verification)
@@ -59,12 +30,13 @@ namespace Measuring_equipment.Controllers
             {
                 _context.Add(verification);
                 await _context.SaveChangesAsync();
+                TempData["message"] = $"Zapisano {verification.VerificationName}.";
                 return RedirectToAction(nameof(Index));
             }
+            TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
             return View(verification);
         }
 
-        // GET: Verification/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -80,24 +52,17 @@ namespace Measuring_equipment.Controllers
             return View(verification);
         }
 
-        // POST: Verification/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("VerificationId,VerificationName,VerificationDesc")] Verification verification)
         {
-            if (id != verification.VerificationId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
+           if (ModelState.IsValid)
             {
                 try
                 {
                     _context.Update(verification);
                     await _context.SaveChangesAsync();
+                    TempData["message"] = $"Zapisano {verification.VerificationName}.";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -112,19 +77,19 @@ namespace Measuring_equipment.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
             return View(verification);
         }
 
-        // GET: Verification/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? verificationId)
         {
-            if (id == null)
+            if (verificationId == null)
             {
                 return NotFound();
             }
 
             var verification = await _context.Verification
-                .FirstOrDefaultAsync(m => m.VerificationId == id);
+                .FirstOrDefaultAsync(m => m.VerificationId == verificationId);
             if (verification == null)
             {
                 return NotFound();
@@ -133,12 +98,11 @@ namespace Measuring_equipment.Controllers
             return View(verification);
         }
 
-        // POST: Verification/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int verificationId)
         {
-            var verification = await _context.Verification.FindAsync(id);
+            var verification = await _context.Verification.FindAsync(verificationId);
             _context.Verification.Remove(verification);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

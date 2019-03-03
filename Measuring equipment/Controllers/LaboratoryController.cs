@@ -116,15 +116,15 @@ namespace Measuring_equipment.Controllers
         }
 
         // GET: Laboratory/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? laboratoryId)
         {
-            if (id == null)
+            if (laboratoryId == null)
             {
                 return NotFound();
             }
 
             var laboratory = await _context.Laboratories
-                .FirstOrDefaultAsync(m => m.LaboratoryId == id);
+                .FirstOrDefaultAsync(m => m.LaboratoryId == laboratoryId);
             if (laboratory == null)
             {
                 return NotFound();
@@ -136,9 +136,9 @@ namespace Measuring_equipment.Controllers
         // POST: Laboratory/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int laboratoryId)
         {
-            var laboratory = await _context.Laboratories.FindAsync(id);
+            var laboratory = await _context.Laboratories.FindAsync(laboratoryId);
             _context.Laboratories.Remove(laboratory);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

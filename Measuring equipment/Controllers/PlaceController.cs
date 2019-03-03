@@ -4,9 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Measuring_equipment.Models;
+using Microsoft.AspNetCore.Authorization;
+using System;
 
 namespace Measuring_equipment.Controllers
 {
+    [Authorize(Roles = "Administratorzy")]
     public class PlaceController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -16,42 +19,18 @@ namespace Measuring_equipment.Controllers
             _context = context;
         }
 
-        // GET: Place
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Places.Include(p => p.Department);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Place/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var place = await _context.Places
-                .Include(p => p.Department)
-                .FirstOrDefaultAsync(m => m.PlaceId == id);
-            if (place == null)
-            {
-                return NotFound();
-            }
-
-            return View(place);
-        }
-
-        // GET: Place/Create
         public IActionResult Create()
         {
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "DepartmentName");
             return View();
         }
 
-        // POST: Place/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("PlaceId,PlaceName,PlaceDesc,DepartmentId")] Place place)
@@ -60,13 +39,14 @@ namespace Measuring_equipment.Controllers
             {
                 _context.Add(place);
                 await _context.SaveChangesAsync();
+                TempData["message"] = $"Zapisano {place.PlaceName}.";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "DepartmentName", place.DepartmentId);
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "DepartmentName", place.DepartmentId).OrderBy(x=>x.Text);
+            TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
             return View(place);
         }
 
-        // GET: Place/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -83,17 +63,11 @@ namespace Measuring_equipment.Controllers
             return View(place);
         }
 
-        // POST: Place/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PlaceId,PlaceName,PlaceDesc,DepartmentId")] Place place)
+        public async Task<IActionResult> Edit([Bind("PlaceId,PlaceName,PlaceDesc,DepartmentId")] Place place)
         {
-            if (id != place.PlaceId)
-            {
-                return NotFound();
-            }
+            
 
             if (ModelState.IsValid)
             {
@@ -101,6 +75,7 @@ namespace Measuring_equipment.Controllers
                 {
                     _context.Update(place);
                     await _context.SaveChangesAsync();
+                    TempData["message"] = $"Zapisano {place.PlaceName}.";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -116,20 +91,20 @@ namespace Measuring_equipment.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "DepartmentName", place.DepartmentId);
+            TempData["error"] = $"Uzupełnij poprawnie wszystkie wymagane dane";
             return View(place);
         }
 
-        // GET: Place/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? placeId)
         {
-            if (id == null)
+            if (placeId == null)
             {
                 return NotFound();
             }
 
             var place = await _context.Places
                 .Include(p => p.Department)
-                .FirstOrDefaultAsync(m => m.PlaceId == id);
+                .FirstOrDefaultAsync(m => m.PlaceId == placeId);
             if (place == null)
             {
                 return NotFound();
@@ -138,14 +113,21 @@ namespace Measuring_equipment.Controllers
             return View(place);
         }
 
-        // POST: Place/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int placeId)
         {
-            var place = await _context.Places.FindAsync(id);
-            _context.Places.Remove(place);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var place = await _context.Places.FindAsync(placeId);
+                _context.Places.Remove(place);
+                await _context.SaveChangesAsync();
+                TempData["message"] = $"Usunięto {place.PlaceName}.";
+            }
+            catch (Exception e)
+            {
+                TempData["error"] = e.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
 

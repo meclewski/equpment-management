@@ -1,18 +1,18 @@
 ﻿@model IEnumerable<Measuring_equipment.Models.Verification>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Rodzaje weryfikacji";
     Layout = "_AdminLayout";
 }
 
-<table class="table" id="dt_rest" width="100%">
+<table class="table table-bordered table-hover" id="dt_rest" width="100%">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.VerificationName)
+               Nazwa
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.VerificationDesc)
+                Opis
             </th>
             <th></th>
         </tr>
@@ -28,15 +28,12 @@
                     @Html.DisplayFor(modelItem => item.VerificationDesc)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.VerificationId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.VerificationId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.VerificationId">Delete</a>
-                </td>
+                    <a class="btn btn-sm btn-info" asp-action="Edit" asp-route-id="@item.VerificationId">Edycja</a> 
             </tr>
         }
     </tbody>
 </table>
 <br />
 <p>
-    <a class="btn btn-primary" asp-action="Create">Create New</a>
+    <a class="btn btn-primary" asp-action="Create">Dodaj nowy</a>
 </p>

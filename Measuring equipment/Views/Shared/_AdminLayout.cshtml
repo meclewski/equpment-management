@@ -43,125 +43,107 @@
         <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
             <i class="fas fa-bars"></i>
         </button>
-        <!-- Navbar Search -->
-        <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </form>
-        <div class="btn btn-link btn-sm text-white order-1 order-sm-0">
-            @if (User?.Identity?.IsAuthenticated ?? false) { 
-            <a class="btn btn-sm btn-primary"
-               asp-action="Logout" asp-controller="Account">Wyloguj</a>
-            }
-        </div>
+        <!-- Navbar User -->
+        @if (User?.Identity?.IsAuthenticated ?? false) {
 
+        <div class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0" style="color:aqua">
+            Zalogowano jako: @User.Identity.Name
+        </div>
+        <div class="btn btn-link btn-sm text-white order-1 order-sm-0">
+                <a class="btn btn-sm btn-primary"
+                   asp-action="Logout" asp-controller="Account">Wyloguj</a>   
+        </div>
+        }
     </nav>
     <div id="wrapper">
         <!-- Sidebar -->
-        <ul class="sidebar navbar-nav toggled">
-            <li class="nav-item">
-                <a class="nav-link" role="button" asp-action="Index" asp-controller="Admin" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-fw fa-wrench"></i>
-                    <span>Urządzenia</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" role="button" asp-action="List" asp-controller="Admin" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-fw fa-wrench"></i>
-                    <span>30 dni</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" role="button" asp-action="Index" asp-controller="Type" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-fw fa-wrench"></i>
-                    <span>Typy</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" role="button" asp-action="UsersIndex" asp-controller="Admin" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-fw fa-user"></i>
-                    <span>Użytkownicy</span>
-                </a>
-            </li>
-            <li class="dropdown-divider"></li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Tabele</span>
-                </a>
-                <div class="dropdown-menu" aria-labelledby="pagesDropdown">
-                    <a class="dropdown-item" asp-action="Index" asp-controller="Place">Miejsca</a>
-                    <a class="dropdown-item" asp-action="Index" asp-controller="Department">Działy</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" asp-action="Index" asp-controller="Laboratory">Laboratoria</a>
-                    <a class="dropdown-item" asp-action="Index" asp-controller="Producer">Producenci</a>
-                    <a class="dropdown-item" asp-action="Index" asp-controller="Verification">Weryfikacje</a>
+        @if (User?.Identity?.IsAuthenticated ?? false) {
+            
+            <ul class="sidebar navbar-nav toggled">
+                <li class="nav-item">
+                    <a class="nav-link" role="button" asp-action="Index" asp-controller="Admin" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-fw fa-wrench"></i>
+                        <span>Urządzenia</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" role="button" asp-action="List" asp-controller="Admin" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-fw fa-wrench"></i>
+                        <span>30 dni</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" role="button" asp-action="Index" asp-controller="Type" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-fw fa-wrench"></i>
+                        <span>Typy</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" role="button" asp-action="UsersIndex" asp-controller="Admin" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-fw fa-user"></i>
+                        <span>Użytkownicy</span>
+                    </a>
+                </li>
+                <li class="dropdown-divider"></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Tabele</span>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="pagesDropdown">
+                        <a class="dropdown-item" asp-action="Index" asp-controller="Place">Miejsca</a>
+                        <a class="dropdown-item" asp-action="Index" asp-controller="Department">Działy</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-action="Index" asp-controller="Laboratory">Laboratoria</a>
+                        <a class="dropdown-item" asp-action="Index" asp-controller="Producer">Producenci</a>
+                        <a class="dropdown-item" asp-action="Index" asp-controller="Verification">Weryfikacje</a>
+                    </div>
+                </li>
+            </ul>
+            }
+            <div id="content-wrapper">
+                <div class="container-fluid">
+                    @if (TempData["message"] != null)
+                    {
+                        <div class="alert alert-success mt-1">@TempData["message"]</div>
+                    }
+                    @if (TempData["error"] != null)
+                    {
+                        <div class="alert alert-danger mt-1">@TempData["error"]</div>
+                    }
+                    <!-- Page Content -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <i class="fas fa-table"></i>
+                            @ViewBag.Title
+                        </div>
+                        <div class="card-body">
+                            @RenderBody()
+                        </div>
+                        <div class="card-footer small text-muted">Aktualizacja @DateTime.Now</div>
+                    </div>
                 </div>
-            </li>
-        </ul>
-        <div id="content-wrapper">
-            <div class="container-fluid">
-                @if (TempData["message"] != null)
+                <!-- /.container-fluid -->
+                <!-- Sticky Footer -->
+                @if (User?.Identity?.IsAuthenticated ?? false)
                 {
-                    <div class="alert alert-success mt-1">@TempData["message"]</div>
+                    <footer class="sticky-footer">
+                        <div class="container my-auto">
+                            <div class="copyright text-center my-auto">
+                                <span>Copyright © Zarządzanie sprzętem pomiarowym 2019</span>
+                            </div>
+                        </div>
+                    </footer>
                 }
-                @if (TempData["error"] != null)
-                {
-                    <div class="alert alert-danger mt-1">@TempData["error"]</div>
-                }
-                <!-- Page Content -->
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <i class="fas fa-table"></i>
-                        @ViewBag.Title
-                    </div>
-                    <div class="card-body">
-                        @RenderBody()
-                    </div>
-                    <div class="card-footer small text-muted">Aktualizacja @DateTime.Now</div>
                 </div>
-            </div>
-            <!-- /.container-fluid -->
-            <!-- Sticky Footer -->
-            <footer class="sticky-footer">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright © Zarządzanie sprzętem pomiarowym 2019</span>
-                    </div>
-                </div>
-            </footer>
+            <!-- /.content-wrapper -->
         </div>
-        <!-- /.content-wrapper -->
-    </div>
     <!-- /#wrapper -->
     <!-- Scroll to Top Button-->
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Logout</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <!-- jQuery -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

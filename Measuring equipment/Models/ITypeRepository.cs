@@ -9,6 +9,10 @@ namespace Measuring_equipment.Models
     {
         IQueryable<Type> Types { get; }
         IQueryable<Type> TypesDT { get; }
+
+        IQueryable<Producer> Producers { get; }
+        IQueryable<Laboratory> Laboratories { get; }
+        IQueryable<Verification> Verifications { get; }
       
 
         void SaveType(Type type);
